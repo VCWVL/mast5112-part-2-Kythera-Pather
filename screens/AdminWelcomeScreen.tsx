@@ -68,5 +68,5 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 8,
   },
-  buttonText: { color: "#fff", fontWeight: "bold" },
+  buttonText: { color: "#eeececff", fontWeight: "bold" },
 });
