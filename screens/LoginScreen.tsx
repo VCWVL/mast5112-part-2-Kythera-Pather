@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ImageBackground, ScrollView } from "react-native";
-import { StackNavigationProp, useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../App";
 
 type LoginNavProp = StackNavigationProp<RootStackParamList, "Login">;

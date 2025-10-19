@@ -9,7 +9,7 @@ import LoginScreen from "./screens/LoginScreen";
 import WelcomeChefScreen from "./screens/AdminWelcomeScreen";
 import MenuScreen from "./screens/MenuScreen"; // Make sure this is imported
 import EditMenuScreen from "./screens/EditMenuScreen";
-// import RemoveItemScreen from "./screens/RemoveItemsScreen";
+import RemoveItemsScreen from "./screens/RemoveItemsScreen";
 // import FilterByCourseScreen from "./screens/FilterByCourseScreen";
 // import CheckoutScreen from "./screens/CheckoutScreen";
 
@@ -21,10 +21,9 @@ export type MenuItem = { id: string; name: string; description: string; course: 
 export type RootStackParamList = {
   Login: undefined;
   WelcomeChef: undefined;
-  // Allow Menu to receive an optional newMenuItem or be called with no params
-  Menu: { newMenuItem?: MenuItem };
+  Menu: { newMenuItem?: MenuItem; updatedMenuItems?: MenuItem[]; isAdmin?: boolean };
   EditMenu: undefined;
-  RemoveItems: undefined;
+  RemoveItems: { currentMenuItems: MenuItem[] };
   FilterByCourse: undefined;
   Checkout: undefined;
 };
@@ -66,6 +65,12 @@ export default function App() {
           name="EditMenu"
           component={EditMenuScreen}
           options={{ title: "Edit Menu" }}
+        />
+
+        <Stack.Screen
+          name="RemoveItems"
+          component={RemoveItemsScreen}
+          options={{ title: "Remove Items" }}
         />
       </Stack.Navigator>
     </NavigationContainer>

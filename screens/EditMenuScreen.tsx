@@ -132,9 +132,6 @@ export default function EditMenuScreen({ navigation }: Props) {
             </View>
 
             <View style={styles.navButtons}>
-              <TouchableOpacity style={styles.removeButton}>
-                <Text style={styles.removeButtonText}>Remove Items</Text>
-              </TouchableOpacity>
               <TouchableOpacity style={styles.menuHomeButton} onPress={() => navigation.navigate("Menu", {})}>
                 <Text style={styles.buttonText}>Menu-Home</Text>
               </TouchableOpacity>
@@ -194,21 +191,9 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   buttonText: { fontWeight: 'bold', color: '#333' },
-  navButtons: { flexDirection: 'row', justifyContent: 'space-between' },
-  removeButton: {
-    flex: 1,
-    marginRight: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
-  },
+  navButtons: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 }, // Centered the remaining button
   removeButtonText: { fontWeight: 'bold', color: '#333' },
   menuHomeButton: {
-    flex: 1,
-    marginLeft: 10,
     backgroundColor: '#a0a0a0',
     paddingVertical: 15,
     paddingHorizontal: 30,

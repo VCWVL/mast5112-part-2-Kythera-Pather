@@ -95,15 +95,22 @@ const initialMenu: MenuItem[] = [
 // --- 3. MAIN APPLICATION COMPONENT ---
 export default function MenuScreen({ navigation, route }: Props) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenu);
+  const isAdmin = route.params?.isAdmin;
 
   useEffect(() => {
-    // Check if a new menu item was passed from the EditMenuScreen
-    const newItem = route.params?.newMenuItem;
-    if (newItem) {
-      // Add the new item to the beginning of the menu list
-      setMenuItems(prevItems => [newItem, ...prevItems]);
+    // This effect handles updates coming from other screens
+    if (route.params?.updatedMenuItems) {
+      // If a full list is passed back (e.g., from RemoveItemsScreen), set it
+      setMenuItems(route.params.updatedMenuItems);
+    } else if (route.params?.newMenuItem) {
+      // If a single new item is added (from EditMenuScreen)
+      const newItem = route.params.newMenuItem;
+      // Prevent adding duplicates if user navigates back and forth
+      if (!menuItems.some(item => item.id === newItem.id)) {
+        setMenuItems(prevItems => [newItem, ...prevItems]);
+      }
     }
-  }, [route.params?.newMenuItem]);
+  }, [route.params]);
 
   const getAveragePrice = (course: Course): number => {
     const courseItems = menuItems.filter(item => item.course === course);
@@ -156,6 +163,11 @@ export default function MenuScreen({ navigation, route }: Props) {
           <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('FilterByCourse')}>
             <Text style={styles.headerNavText}>Filter by course</Text>
           </TouchableOpacity>
+          {isAdmin && (
+            <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('RemoveItems', { currentMenuItems: menuItems })}>
+              <Text style={styles.headerNavText}>Remove Items</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.goBack()}>
             <Text style={styles.headerNavText}>Back</Text>
           </TouchableOpacity>
