@@ -1,112 +1,151 @@
-import React, { useState } from "react";
-import { View, Text, SectionList, TouchableOpacity, Image, StyleSheet, SafeAreaView } from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../App";
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Image,
+} from 'react-native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
+import { RootStackParamList, MenuItem, Course } from '../App';
 
-type MenuNavProp = StackNavigationProp<RootStackParamList, "Menu">;
-type Props = { navigation: MenuNavProp };
+type MenuNavProp = StackNavigationProp<RootStackParamList, 'Menu'>;
+import { SectionList } from 'react-native';
 
-type MenuItem = {
-  id: string;
-  name: string;
-  description: string;
-  course: Course;
-  price: number;
-};
+type MenuRouteProp = RouteProp<RootStackParamList, 'Menu'>;
+type Props = { navigation: MenuNavProp; route: MenuRouteProp };
 
-type Course = 'Specials' | 'Starter' | 'Main Course' | 'Dessert' | 'Drinks';
-
-const predefinedCourses: Course[] = ['Specials', 'Starter', 'Main Course', 'Dessert', 'Drinks'];
-
-const drinksData = {
-  'Cold drinks': ["Any frizzy drink", "Fruit juice's", "Ice water"],
-  'Hot drinks': ["Tea", "Coffee", "Hot chocolate"],
-};
-
-const initialMenu: MenuItem[] = [
-  { id: '1', name: 'Lobster Thermidor', description: 'Grilled lobster tail in a creamy mustard and brandy sauce.', course: 'Specials', price: 300 },
-  { id: '2', name: "Chef's Tasting Platter", description: "A curated selection of the chef's favorite seasonal bites (serves two).", course: 'Specials', price: 350 },
-  { id: '3', name: 'Seared Scallops with Herb Sauce', description: 'Pan-fried scallops served with herb and lemon dressing.', course: 'Starter', price: 195 },
-  { id: '4', name: 'Roasted Tomato Soup', description: 'Pan-fried scallops served with herb and lemon dressing.', course: 'Starter', price: 70 },
-  { id: '5', name: 'Filet Steak', description: 'Tender beef fillet with a creamy peppercorn sauce, served with potatoes.', course: 'Main Course', price: 220 },
-  { id: '6', name: 'Pan-Fried Salmon', description: 'Salmon fillets served with a creamy dill and mustard sauce.', course: 'Main Course', price: 155 },
-  { id: '7', name: 'Classic Crème Brûlée', description: 'A smooth vanilla custard topped with a caramelised sugar crust.', course: 'Dessert', price: 125 },
-  { id: '8', name: 'Chocolate Lava Pudding', description: 'A rich chocolate sponge with a gooey molten centre.', course: 'Dessert', price: 95 },
+const predefinedCourses: Course[] = [
+  'Specials',
+  'Starter',
+  'Main Course',
+  'Dessert',
+  'Drinks',
 ];
 
-export default function MenuScreen({ navigation }: Props) {
+// Data for the unique 'Drinks' section layout
+const drinksData = {
+  'Cold drinks': ['Any frizzy drink', "Fruit juice's", 'Ice water'],
+  'Hot drinks': ['Tea', 'Coffee', 'Hot chocolate'],
+};
+
+// --- 2. INITIAL MENU DATA (with images) ---
+const initialMenu: MenuItem[] = [
+  {
+    id: '1', name: 'Lobster Thermidor', description: 'Grilled lobster tail in a creamy mustard and brandy sauce.', course: 'Specials', price: 300, image: require("../assets/Lobster Thermidor.jpg"),
+  },
+  {
+    id: '2', name: "Chef's Tasting Platter", description: "A curated selection of the chef's favorite seasonal bites (serves two).", course: 'Specials', price: 350, image: require("../assets/Chef's Tasting Platter.jpg"),
+  },
+  {
+    id: '3', name: 'Seared Scallops with Herb Sauce', description: 'Pan-fried scallops served with herb and lemon dressing.', course: 'Starter', price: 95, image: require('../assets/Seared Scallops with Herb Sauce.jpg'),
+  },
+  {
+    id: '4', name: 'Roasted Tomato Soup', description: 'Rich roasted tomato soup topped with basil oil and croutons.', course: 'Starter', price: 70, image: require('../assets/Roasted Tomato Soup.jpg'),
+  },
+  {
+    id: '5', name: 'Fillet Steak', description: 'Tender beef fillet with creamy peppercorn sauce and potatoes.', course: 'Main Course', price: 220, image: require('../assets/fillet-steak.jpg'),
+  },
+  {
+    id: '6', name: 'Pan-Fried Salmon', description: 'Salmon fillet served with creamy dill and mustard sauce.', course: 'Main Course', price: 155, image: require('../assets/Pan-Fried Salmon.jpg'),
+  },
+  {
+    id: '7', name: 'Classic Crème Brûlée', description: 'Smooth vanilla custard topped with a caramelised sugar crust.', course: 'Dessert', price: 125, image: require('../assets/Classic Crème Brûlée.jpg'),
+  },
+  {
+    id: '8', name: 'Chocolate Lava Pudding', description: 'Rich chocolate sponge with a gooey molten centre.', course: 'Dessert', price: 95, image: require('../assets/Chocolate Lava Pudding.jpg'),
+  },
+];
+
+// --- 3. MAIN APPLICATION COMPONENT ---
+export default function MenuScreen({ navigation, route }: Props) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenu);
 
-  const getAverage = (course: string) => {
-    const items = menuItems.filter((item) => item.course === course);
-    if (items.length === 0) return 0;
-    const total = items.reduce((sum, item) => sum + item.price, 0);
-    return (total / items.length).toFixed(2);
+  useEffect(() => {
+    // Check if a new menu item was passed from the EditMenuScreen
+    const newItem = route.params?.newMenuItem;
+    if (newItem) {
+      // Add the new item to the beginning of the menu list
+      setMenuItems(prevItems => [newItem, ...prevItems]);
+    }
+  }, [route.params?.newMenuItem]);
+
+  const getAveragePrice = (course: Course): number => {
+    const courseItems = menuItems.filter(item => item.course === course);
+    if (courseItems.length === 0) {
+      return 0;
+    }
+    const total = courseItems.reduce((sum, item) => sum + item.price, 0);
+    return total / courseItems.length;
   };
 
+  const groupedMenu = menuItems.reduce((acc, item) => {
+    (acc[item.course] = acc[item.course] || []).push(item);
+    return acc;
+  }, {} as Record<Course, MenuItem[]>);
+
+  // Format the data for the SectionList
   const menuSections = predefinedCourses
-    .filter(course => course !== 'Drinks')
+    .filter(course => course !== 'Drinks' && groupedMenu[course]?.length > 0)
     .map(course => ({
       title: course,
-      data: menuItems.filter(item => item.course === course),
-    })).filter(section => section.data.length > 0);
+      data: groupedMenu[course],
+    }));
+
+  const renderMenuItemCard = ({ item }: { item: MenuItem }) => {
+    // Use the uploaded image URI if it exists, otherwise use the require() path
+    const imageSource = typeof item.image === 'string' ? { uri: item.image } : item.image;
+
+    return (
+      <View style={styles.menuItemCard}>
+        <Image source={imageSource || require('../assets/Logo.jpg')} style={styles.itemImage} />
+        <View style={styles.itemDetails}>
+          <Text style={styles.itemName}>
+            {item.name} - R{item.price.toFixed(0)}
+          </Text>
+          <Text style={styles.itemDescription}>{item.description}</Text>
+          <TouchableOpacity style={styles.checkoutButton}>
+            <Text style={styles.checkoutButtonText}>Add to checkout</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
 
   const ListHeader = () => (
     <>
       <View style={styles.header}>
-        <Image source={require("../assets/Logo.jpg")} style={styles.logoPlaceholder} />
+        <Image source={require('../assets/Logo.jpg')} style={styles.logoPlaceholder} />
         <Text style={styles.headerTitle}>The Menu</Text>
         <View style={styles.headerNavContainer}>
-          <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate("FilterByCourse")}>
+          <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('FilterByCourse')}>
             <Text style={styles.headerNavText}>Filter by course</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate("WelcomeChef")}>
+          <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.goBack()}>
             <Text style={styles.headerNavText}>Back</Text>
           </TouchableOpacity>
         </View>
       </View>
       <View style={styles.statsContainer}>
-        {renderStatistic('Total number of menu items', `${menuItems.length} Items`)}
-        {renderStatistic(
-          'Average price of each course',
-          `Specials: R${getAverage("Specials")}\nStarters: R${getAverage("Starter")}\nMain: R${getAverage("Main Course")}\nDesserts: R${getAverage("Dessert")}`
-        )}
+        <View style={styles.statBox}>
+          <Text style={styles.statTitle}>Total number of menu items</Text>
+          <Text style={styles.statValue}>{menuItems.length} Items</Text>
+        </View>
+        <View style={styles.statBox}>
+          <Text style={styles.statTitle}>Average price of each course</Text>
+          {predefinedCourses.filter(c => c !== 'Drinks').map(course => {
+            const avg = getAveragePrice(course);
+            if (avg > 0) {
+              return (
+                <Text key={course} style={styles.statValueSmall}>{course}: R{avg.toFixed(0)}</Text>
+              );
+            }
+          })}
+        </View>
       </View>
     </>
-  );
-
-  const ListFooter = () => (
-    <>
-      {renderDrinksSection()}
-      <View style={styles.bottomButtons}>
-        <TouchableOpacity style={styles.saveButton} onPress={() => navigation.navigate("WelcomeChef")}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.saveButtonText}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
-    </>
-  );
-
-  const renderStatistic = (title: string, value: React.ReactNode) => (
-    <View style={styles.statBox}>
-      <Text style={styles.statTitle}>{title}</Text>
-      <Text style={styles.statValue}>{value}</Text>
-    </View>
-  );
-
-  const renderMenuItemCard = ({ item }: { item: MenuItem }) => (
-    <View style={styles.menuItemCard}>
-      <Image source={require("../assets/Background.jpg")} style={styles.imagePlaceholder} />
-      <View style={styles.itemDetails}>
-        <Text style={styles.itemName}>{item.name}-R{item.price.toFixed(0)}</Text>
-        <Text style={styles.itemDescription}>{item.description}</Text>
-        <TouchableOpacity style={styles.checkoutButton} onPress={() => navigation.navigate("Checkout")}>
-          <Text style={styles.checkoutButtonText}>Add to checkout</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
   );
 
   const renderDrinksSection = () => (
@@ -141,52 +180,126 @@ export default function MenuScreen({ navigation }: Props) {
         sections={menuSections}
         keyExtractor={(item) => item.id}
         renderItem={renderMenuItemCard}
-        renderSectionHeader={({ section: { title } }) => <Text style={styles.courseHeader}>{title}</Text>}
+        renderSectionHeader={({ section: { title } }) => (
+          <Text style={styles.courseHeader}>{title}</Text>
+        )}
         ListHeaderComponent={ListHeader}
-        ListFooterComponent={ListFooter}
-        contentContainerStyle={styles.listContentContainer}
+        ListFooterComponent={renderDrinksSection()}
+        contentContainerStyle={styles.scrollViewContent}
       />
     </SafeAreaView>
   );
-}
+};
 
+// --- 4. STYLES ---
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  listContentContainer: { paddingHorizontal: 15, paddingBottom: 30 },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollViewContent: {
+    paddingHorizontal: 15,
+    paddingBottom: 30,
+    // This is the key fix: It allows the content area to grow and fill the screen.
+    flexGrow: 1,
+  },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, marginBottom: 10 },
   logoPlaceholder: { width: 60, height: 60, borderRadius: 30, borderWidth: 1, borderColor: '#333', marginRight: 10 },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', flex: 1 },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    flex: 1,
+  },
   headerNavContainer: { alignItems: 'flex-end' },
   headerNavButton: { backgroundColor: '#fff', paddingHorizontal: 5, paddingVertical: 1, borderWidth: 1, borderColor: '#333', borderRadius: 3, marginBottom: 2 },
   headerNavText: { fontSize: 10, color: '#333' },
-  statsContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  statBox: { width: '48%', padding: 10, backgroundColor: '#fff', borderRadius: 5, borderWidth: 1, borderColor: '#333' },
-  statTitle: { fontSize: 12, fontWeight: '600', color: '#333', marginBottom: 4, textDecorationLine: 'underline' },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  statBox: {
+    width: '48%',
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  statTitle: { fontSize: 12, fontWeight: '600', color: '#333', marginBottom: 4 },
   statValue: { fontSize: 14, fontWeight: 'bold', color: '#333', lineHeight: 18 },
-  courseHeader: { fontSize: 18, fontWeight: 'bold', color: '#333', marginTop: 15, marginBottom: 10, textAlign: 'center', textDecorationLine: 'underline' },
-  menuItemCard: { flexDirection: 'row', backgroundColor: '#fff', padding: 10, borderRadius: 8, marginBottom: 15, borderWidth: 1, borderColor: '#333', minHeight: 100 },
-  imagePlaceholder: { width: 80, height: 80, borderRadius: 40, borderWidth: 1, borderColor: '#333', marginRight: 10 },
-  itemDetails: { position: 'relative', flexShrink: 1 },
-  itemName: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 2 },
-  itemDescription: { fontSize: 12, color: '#666' },
+  statValueSmall: { fontSize: 12, fontWeight: '500', color: '#333', lineHeight: 16 },
+  courseHeader: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+    textDecorationLine: 'underline',
+    color: '#333',
+  },
+  menuItemCard: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#333',
+    marginBottom: 15,
+    alignItems: 'center',
+  },
+  itemImage: {
+    width: 90,
+    height: 90, 
+    borderRadius: 10,
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  itemDetails: {
+    flex: 1,
+  },
+  itemName: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 5,
+  },
+  itemDescription: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 8,
+  },
   checkoutButton: {
     backgroundColor: '#333',
-    paddingHorizontal: 15,
-    paddingVertical: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 5,
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
+    alignSelf: 'flex-end',
   },
-  checkoutButtonText: { color: '#fff', fontSize: 12 },
-  drinksContainer: { flexDirection: 'row', justifyContent: 'space-around', padding: 10, borderWidth: 1, borderColor: '#333', borderRadius: 5 },
-  drinksColumn: { width: '45%' },
-  drinksSubHeader: { fontSize: 14, fontWeight: 'bold', color: '#333', marginBottom: 10, textDecorationLine: 'underline' },
-  drinkItem: { marginBottom: 5, flexDirection: 'row', justifyContent: 'space-between' },
-  drinkText: { fontSize: 14, textDecorationLine: 'underline' },
-  drinkLine: { flex: 1, height: 1, backgroundColor: '#333', marginLeft: 5, marginTop: 8 },
-  bottomButtons: { flexDirection: 'row', justifyContent: 'space-evenly', marginTop: 20 },
-  saveButton: { backgroundColor: '#333', padding: 12, borderRadius: 5, alignItems: 'center', paddingHorizontal: 40 },
-  cancelButton: { backgroundColor: '#888', padding: 12, borderRadius: 5, alignItems: 'center', paddingHorizontal: 40 },
-  saveButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  checkoutButtonText: {
+    color: '#fff',
+    fontSize: 12,
+  },
+  drinksContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    borderWidth: 1,
+    borderColor: '#333',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  drinksColumn: {
+    width: '45%',
+  },
+  drinksSubHeader: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+    marginBottom: 8,
+  },
+  drinkItem: { marginBottom: 5, flexDirection: 'row', alignItems: 'center' },
+  drinkText: { fontSize: 13 },
+  drinkLine: { flex: 1, height: 1, backgroundColor: '#ccc', marginLeft: 8 },
 });

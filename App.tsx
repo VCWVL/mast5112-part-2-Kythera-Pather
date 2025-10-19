@@ -13,10 +13,16 @@ import EditMenuScreen from "./screens/EditMenuScreen";
 // import FilterByCourseScreen from "./screens/FilterByCourseScreen";
 // import CheckoutScreen from "./screens/CheckoutScreen";
 
+// Define a shared Course type
+export type Course = 'Specials' | 'Starter' | 'Main Course' | 'Dessert' | 'Drinks';
+// Define a shared MenuItem type to be used across screens
+export type MenuItem = { id: string; name: string; description: string; course: Course; price: number; image?: string | null; };
+
 export type RootStackParamList = {
   Login: undefined;
   WelcomeChef: undefined;
-  Menu: undefined;
+  // Allow Menu to receive an optional newMenuItem or be called with no params
+  Menu: { newMenuItem?: MenuItem };
   EditMenu: undefined;
   RemoveItems: undefined;
   FilterByCourse: undefined;

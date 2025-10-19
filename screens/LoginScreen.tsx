@@ -15,7 +15,7 @@ export default function LoginScreen({ navigation }: Props) {
     if (username.toLowerCase() === "chef") {
       navigation.navigate("WelcomeChef");
     } else {
-      navigation.navigate("Menu");
+      navigation.navigate("Menu", {});
     }
   };
 
