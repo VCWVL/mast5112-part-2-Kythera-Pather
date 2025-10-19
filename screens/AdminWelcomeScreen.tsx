@@ -21,7 +21,7 @@ export default function WelcomeChefScreen({ navigation }: Props) {
 
         <TouchableOpacity
           style={styles.button}
-          // onPress={() => navigation.navigate("Menu")} // Navigation disabled for now
+          onPress={() => navigation.navigate("Menu")}
         >
           <Text style={styles.buttonText}>Menu</Text>
         </TouchableOpacity>
