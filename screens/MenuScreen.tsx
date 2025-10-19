@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  Image,
-} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, SafeAreaView,Image, ImageBackground} from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList, MenuItem, Course } from '../App';
@@ -34,28 +27,68 @@ const drinksData = {
 // --- 2. INITIAL MENU DATA (with images) ---
 const initialMenu: MenuItem[] = [
   {
-    id: '1', name: 'Lobster Thermidor', description: 'Grilled lobster tail in a creamy mustard and brandy sauce.', course: 'Specials', price: 300, image: require("../assets/Lobster Thermidor.jpg"),
+    id: '1', 
+    name: 'Lobster Thermidor', 
+    description: 'Grilled lobster tail in a creamy mustard and brandy sauce.', 
+    course: 'Specials', 
+    price: 300, 
+    image: require("../assets/Lobster Thermidor.jpg"),
   },
   {
-    id: '2', name: "Chef's Tasting Platter", description: "A curated selection of the chef's favorite seasonal bites (serves two).", course: 'Specials', price: 350, image: require("../assets/Chef's Tasting Platter.jpg"),
+    id: '2', 
+    name: "Chef's Tasting Platter", 
+    description: "A curated selection of the chef's favorite seasonal bites (serves two).", 
+    course: 'Specials', 
+    price: 350, 
+    image: require("../assets/Chef's Tasting Platter.jpg"),
   },
   {
-    id: '3', name: 'Seared Scallops with Herb Sauce', description: 'Pan-fried scallops served with herb and lemon dressing.', course: 'Starter', price: 95, image: require('../assets/Seared Scallops with Herb Sauce.jpg'),
+    id: '3',
+   name: 'Seared Scallops with Herb Sauce', 
+   description: 'Pan-fried scallops served with herb and lemon dressing.', 
+   course: 'Starter', 
+   price: 95, 
+   image: require('../assets/Seared Scallops with Herb Sauce.jpg'),
   },
   {
-    id: '4', name: 'Roasted Tomato Soup', description: 'Rich roasted tomato soup topped with basil oil and croutons.', course: 'Starter', price: 70, image: require('../assets/Roasted Tomato Soup.jpg'),
+    id: '4', 
+    name: 'Roasted Tomato Soup', 
+    description: 'Rich roasted tomato soup topped with basil oil and croutons.', 
+    course: 'Starter',
+     price: 70, 
+    image: require('../assets/Roasted Tomato Soup.jpg'),
   },
   {
-    id: '5', name: 'Fillet Steak', description: 'Tender beef fillet with creamy peppercorn sauce and potatoes.', course: 'Main Course', price: 220, image: require('../assets/fillet-steak.jpg'),
+    id: '5', 
+    name: 'Fillet Steak', 
+    description: 'Tender beef fillet with creamy peppercorn sauce and potatoes.', 
+    course: 'Main Course', 
+    price: 220, 
+    image: require('../assets/fillet-steak.jpg'),
   },
   {
-    id: '6', name: 'Pan-Fried Salmon', description: 'Salmon fillet served with creamy dill and mustard sauce.', course: 'Main Course', price: 155, image: require('../assets/Pan-Fried Salmon.jpg'),
+    id: '6', 
+    name: 'Pan-Fried Salmon', 
+    description: 'Salmon fillet served with creamy dill and mustard sauce.', 
+    course: 'Main Course', 
+    price: 155, 
+    image: require('../assets/Pan-Fried Salmon.jpg'),
   },
   {
-    id: '7', name: 'Classic Crème Brûlée', description: 'Smooth vanilla custard topped with a caramelised sugar crust.', course: 'Dessert', price: 125, image: require('../assets/Classic Crème Brûlée.jpg'),
+    id: '7', 
+    name: 'Classic Crème Brûlée', 
+    description: 'Smooth vanilla custard topped with a caramelised sugar crust.', 
+    course: 'Dessert', 
+    price: 125, 
+    image: require('../assets/Classic Crème Brûlée.jpg'),
   },
   {
-    id: '8', name: 'Chocolate Lava Pudding', description: 'Rich chocolate sponge with a gooey molten centre.', course: 'Dessert', price: 95, image: require('../assets/Chocolate Lava Pudding.jpg'),
+    id: '8', 
+    name: 'Chocolate Lava Pudding', 
+    description: 'Rich chocolate sponge with a gooey molten centre.', 
+    course: 'Dessert', 
+    price: 95, 
+    image: require('../assets/Chocolate Lava Pudding.jpg'),
   },
 ];
 
@@ -175,19 +208,21 @@ export default function MenuScreen({ navigation, route }: Props) {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <SectionList
-        sections={menuSections}
-        keyExtractor={(item) => item.id}
-        renderItem={renderMenuItemCard}
-        renderSectionHeader={({ section: { title } }) => (
-          <Text style={styles.courseHeader}>{title}</Text>
-        )}
-        ListHeaderComponent={ListHeader}
-        ListFooterComponent={renderDrinksSection()}
-        contentContainerStyle={styles.scrollViewContent}
-      />
-    </SafeAreaView>
+    <ImageBackground source={require('../assets/Background.jpg')} style={styles.container} resizeMode="cover">
+      <SafeAreaView style={styles.overlay}>
+        <SectionList
+          sections={menuSections}
+          keyExtractor={(item) => item.id}
+          renderItem={renderMenuItemCard}
+          renderSectionHeader={({ section: { title } }) => (
+            <Text style={styles.courseHeader}>{title}</Text>
+          )}
+          ListHeaderComponent={ListHeader}
+          ListFooterComponent={renderDrinksSection}
+          contentContainerStyle={styles.scrollViewContent}
+        />
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
@@ -195,13 +230,14 @@ export default function MenuScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+  },
+  overlay: {
+    flex: 1, // This ensures the safe area fills the background
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Semi-transparent white background
   },
   scrollViewContent: {
     paddingHorizontal: 15,
     paddingBottom: 30,
-    // This is the key fix: It allows the content area to grow and fill the screen.
-    flexGrow: 1,
   },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, marginBottom: 10 },
   logoPlaceholder: { width: 60, height: 60, borderRadius: 30, borderWidth: 1, borderColor: '#333', marginRight: 10 },

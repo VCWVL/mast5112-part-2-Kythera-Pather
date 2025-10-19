@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet, ImageBackground } from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet, ImageBackground, ScrollView } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../App";
 
@@ -11,47 +11,53 @@ export default function WelcomeChefScreen({ navigation }: Props) {
     <ImageBackground
       source={require("../assets/Background.jpg")} // Make sure you have a background.jpg in your assets folder
       style={styles.container}
+      resizeMode="cover"
     >
       <View style={styles.overlay}>
-        <View style={styles.headerContainer}>
-          <Image source={require("../assets/Logo.jpg")} style={styles.logo} />
-          <Text style={styles.title}>Welcome Christoffel’s</Text>
-        </View>
-        <Image source={require("../assets/Menu Banner.jpg")} style={styles.image} />
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.headerContainer}>
+            <Image source={require("../assets/Logo.jpg")} style={styles.logo} />
+            <Text style={styles.title}>Welcome Christoffel’s</Text>
+          </View>
+          <Image source={require("../assets/Menu Banner.jpg")} style={styles.image} />
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("Menu", {})}
-        >
-          <Text style={styles.buttonText}>Menu</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("Menu", {})}
+          >
+            <Text style={styles.buttonText}>Menu</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.button}
-          // onPress={() => navigation.navigate("FilterByCourse")} // Navigation disabled for now
-        >
-          <Text style={styles.buttonText}>Filter by Course</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            // onPress={() => navigation.navigate("FilterByCourse")} // Navigation disabled for now
+          >
+            <Text style={styles.buttonText}>Filter by Course</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("EditMenu")}
-        >
-          <Text style={styles.buttonText}>Edit menu items</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("EditMenu")}
+          >
+            <Text style={styles.buttonText}>Edit menu items</Text>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center" },
+  container: { flex: 1 },
   overlay: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: "rgba(0,0,0,0.3)", // Optional: adds a dark overlay for better text readability
     width: "100%",
+  },
+  scrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
   headerContainer: {
     flexDirection: "row",
