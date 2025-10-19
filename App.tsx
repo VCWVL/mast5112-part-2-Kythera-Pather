@@ -8,7 +8,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import LoginScreen from "./screens/LoginScreen";
 import WelcomeChefScreen from "./screens/AdminWelcomeScreen";
 import MenuScreen from "./screens/MenuScreen"; // Make sure this is imported
-// import EditMenuItemScreen from "./screens/EditMenuScreen";
+import EditMenuScreen from "./screens/EditMenuScreen";
 // import RemoveItemScreen from "./screens/RemoveItemsScreen";
 // import FilterByCourseScreen from "./screens/FilterByCourseScreen";
 // import CheckoutScreen from "./screens/CheckoutScreen";
@@ -56,7 +56,11 @@ export default function App() {
           options={{ title: "Menu" }}
         />
 
-        {/* The other screens are commented out for now */}
+        <Stack.Screen
+          name="EditMenu"
+          component={EditMenuScreen}
+          options={{ title: "Edit Menu" }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
