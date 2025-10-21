@@ -272,7 +272,7 @@ export default function MenuScreen({ navigation, route }: Props) {
   );
 
   return (
-    <ImageBackground source={require('../assets/Background.jpg')} style={styles.container} resizeMode="cover">
+    <ImageBackground source={require('../assets/Background.jpg')} style={styles.container} resizeMode="contain">
       <SafeAreaView style={styles.overlay}>
         <SectionList
             sections={menuSections}
@@ -292,7 +292,7 @@ export default function MenuScreen({ navigation, route }: Props) {
 // --- 4. STYLES ---
 const styles = StyleSheet.create({
   container: {
-    minHeight: '100%',
+    flex: 1,
   },
   overlay: {
     flex: 1, // This ensures the safe area fills the background
@@ -328,18 +328,18 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end' 
   },
   headerNavButton: { 
-    backgroundColor: '#fff', 
+    backgroundColor: '#2e2b2bff', 
     paddingHorizontal: 5, 
     paddingVertical: 1, 
     borderWidth: 1, 
-    borderColor: '#333', 
+    borderColor: '#fcf9f9ff', 
     borderRadius: 3, 
     marginBottom: 2 
   },
   headerNavText: { 
-    fontSize: 10, 
+    fontSize: 13, 
     fontWeight: 'bold', 
-    color: '#333' 
+    color: '#e9e5e5ff' 
   },
   statsContainer: {
     flexDirection: 'row',
