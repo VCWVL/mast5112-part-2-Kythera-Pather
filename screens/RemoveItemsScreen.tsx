@@ -1,24 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground, SectionList, Alert } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList, MenuItem, Course } from '../App';
+import { ScreenProps, MenuItem, Course } from '../App';
 
-type RemoveItemsNavProp = StackNavigationProp<RootStackParamList, 'RemoveItems'>;
-type RemoveItemsRouteProp = RouteProp<RootStackParamList, 'RemoveItems'>;
-type Props = { navigation: RemoveItemsNavProp; route: RemoveItemsRouteProp };
+type Props = ScreenProps<'RemoveItems'>;
 
 const predefinedCourses: Course[] = ['Specials', 'Starter', 'Main Course', 'Dessert', 'Drinks'];
 
-const initialDrinksData = {
-  'Cold drinks': ['Any frizzy drink', "Fruit juice's", 'Ice water'],
-  'Hot drinks': ['Tea', 'Coffee', 'Hot chocolate'],
-}; // This will be used as initial state for drinks
-
-export default function RemoveItemsScreen({ navigation, route }: Props) {
-  const { currentMenuItems } = route.params;
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(() => currentMenuItems);
-  const [drinks, setDrinks] = useState(initialDrinksData); // Drinks are static and not part of the main menu state
+export default function RemoveItemsScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData }: Props) {
   const [itemsToRemove, setItemsToRemove] = useState<Set<string>>(new Set());
 
   const toggleItemForRemoval = useCallback((itemId: string) => {
@@ -38,16 +26,16 @@ export default function RemoveItemsScreen({ navigation, route }: Props) {
     }
     // Filter out regular menu items
     const updatedMenuItems = menuItems.filter(item => !itemsToRemove.has(item.id));
+    setMenuItems(updatedMenuItems);
 
     // Filter out drink items
-    const newColdDrinks = drinks['Cold drinks'].filter(drink => !itemsToRemove.has(`cold-${drink.replace(/\s+/g, '-')}`));
-    const newHotDrinks = drinks['Hot drinks'].filter(drink => !itemsToRemove.has(`hot-${drink.replace(/\s+/g, '-')}`));
-    const updatedDrinksData = { // This is the object passed back to MenuScreen
-      'Cold drinks': newColdDrinks,
-      'Hot drinks': newHotDrinks,
-    };
+    const newColdDrinks = drinksData['Cold drinks'].filter(drink => !itemsToRemove.has(`cold-${drink.replace(/\s+/g, '-')}`));
+    const newHotDrinks = drinksData['Hot drinks'].filter(drink => !itemsToRemove.has(`hot-${drink.replace(/\s+/g, '-')}`));
+    setDrinksData({ 'Cold drinks': newColdDrinks, 'Hot drinks': newHotDrinks });
 
-    navigation.navigate('Menu', { updatedMenuItems: updatedMenuItems, updatedDrinksData: updatedDrinksData });
+    // Clear the selection and show a success message
+    setItemsToRemove(new Set());
+    Alert.alert("Changes Saved", "The selected items have been removed from the menu.");
   };
 
   const handleCancel = () => {
@@ -97,7 +85,7 @@ export default function RemoveItemsScreen({ navigation, route }: Props) {
   };
 
   const ListHeader = () => {
-    const totalDrinkCount = drinks['Cold drinks'].length + drinks['Hot drinks'].length;
+    const totalDrinkCount = drinksData['Cold drinks'].length + drinksData['Hot drinks'].length;
     const totalItemCount = menuItems.length + totalDrinkCount;
 
     return (
@@ -133,7 +121,7 @@ export default function RemoveItemsScreen({ navigation, route }: Props) {
        <View style={styles.drinksContainer}>
          <View style={styles.drinksColumn}>
            <Text style={styles.drinksSubHeader}>Cold drinks</Text>
-           {drinks['Cold drinks'].map((drink, index) => { // Use 'drinks' state here
+           {drinksData['Cold drinks'].map((drink, index) => {
              const drinkId = `cold-${drink.replace(/\s+/g, '-')}`;
              const isMarkedForRemoval = itemsToRemove.has(drinkId);
              return (
@@ -151,7 +139,7 @@ export default function RemoveItemsScreen({ navigation, route }: Props) {
          </View>
          <View style={styles.drinksColumn}>
            <Text style={styles.drinksSubHeader}>Hot drinks</Text>
-           {drinks['Hot drinks'].map((drink, index) => { // Use 'drinks' state here
+           {drinksData['Hot drinks'].map((drink, index) => {
              const drinkId = `hot-${drink.replace(/\s+/g, '-')}`;
              const isMarkedForRemoval = itemsToRemove.has(drinkId);
              return (
@@ -174,11 +162,14 @@ export default function RemoveItemsScreen({ navigation, route }: Props) {
   const ListFooter = () => (
      <View>
        <View style={styles.footerButtons}>
-         <TouchableOpacity style={styles.footerButton} onPress={handleSave}>
+         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
            <Text style={styles.footerButtonText}>Save</Text>
          </TouchableOpacity>
-         <TouchableOpacity style={styles.footerButton} onPress={handleCancel}>
+         <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
            <Text style={styles.footerButtonText}>Cancel</Text>
+         </TouchableOpacity>
+         <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('Login')}>
+           <Text style={styles.footerButtonText}>Logout</Text>
          </TouchableOpacity>
        </View>
      </View>
@@ -317,7 +308,7 @@ const styles = StyleSheet.create({
      marginBottom: 8 
     },
   removeButton: {
-     backgroundColor: '#add8e6', // Light blue
+     backgroundColor: '#181717ff', // Light blue
      paddingHorizontal: 12,
      paddingVertical: 6,
      borderRadius: 5,
@@ -338,6 +329,7 @@ const styles = StyleSheet.create({
      padding: 10,
      borderRadius: 8,
      marginTop: 10,
+    backgroundColor: '#fff',
   },
   drinksColumn: { 
     width: '45%' 
@@ -356,9 +348,12 @@ const styles = StyleSheet.create({
      padding: 4,
      borderRadius: 4,
   },
-  drinkText: { fontSize: 13, flex: 1 },
+  drinkText: { 
+    fontSize: 13, 
+    flex: 1 
+  },
   drinkRemoveButton: {
-     backgroundColor: '#add8e6',
+     backgroundColor: '#1e1f1fff',
      paddingHorizontal: 8,
      paddingVertical: 4,
      borderRadius: 4,
@@ -374,18 +369,30 @@ const styles = StyleSheet.create({
      justifyContent: 'space-around',
      marginTop: 30,
      paddingHorizontal: 10,
+     width: '100%',
   },
-  footerButton: {
-     backgroundColor: '#000',
+  saveButton: {
+    backgroundColor: '#bbbebbff', // Green for save
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 20,
+  },
+  cancelButton: {
+    backgroundColor: '#a0a0a0', // Grey for cancel
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 20,
+  },
+  logoutButton: {
+    backgroundColor: '#a88525ff', // A distinct color for logout
      paddingVertical: 15,
-     borderRadius: 8,
-     flex: 1,
-     marginHorizontal: 10,
-     alignItems: 'center',
+    paddingHorizontal: 30,
+    borderRadius: 20,
   },
   footerButtonText: {
      color: '#fff',
      fontWeight: 'bold',
-     fontSize: 16,
+    fontSize: 14,
+    textAlign: 'center',
   },
 });

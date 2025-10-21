@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground, Alert, ScrollView, SectionList } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList, MenuItem, Course } from '../App';
+import { ScreenProps, MenuItem, Course } from '../App';
 
-type MenuNavProp = StackNavigationProp<RootStackParamList, 'Menu'>;
-
-type MenuRouteProp = RouteProp<RootStackParamList, 'Menu'>;
-type Props = { navigation: MenuNavProp; route: MenuRouteProp };
+type Props = ScreenProps<'Menu'>;
 
 const predefinedCourses: Course[] = [
   'Specials',
@@ -17,121 +12,27 @@ const predefinedCourses: Course[] = [
   'Drinks',
 ];
 
-// Data for the unique 'Drinks' section layout
-const initialDrinksData = { // Renamed to initialDrinksData
-  'Cold drinks': ['Any frizzy drink', "Fruit juice's", 'Ice water'],
-  'Hot drinks': ['Tea', 'Coffee', 'Hot chocolate'],
-};
-
-// --- 2. INITIAL MENU DATA (with images) ---
-const initialMenu: MenuItem[] = [
-  {
-    id: '1', 
-    name: 'Lobster Thermidor', 
-    description: 'Grilled lobster tail in a creamy mustard and brandy sauce.', 
-    course: 'Specials', 
-    price: 300, 
-    image: require("../assets/Lobster Thermidor.jpg"),
-  },
-  {
-    id: '2', 
-    name: "Chef's Tasting Platter", 
-    description: "A curated selection of the chef's favorite seasonal bites (serves two).", 
-    course: 'Specials', 
-    price: 350, 
-    image: require("../assets/Chef's Tasting Platter.jpg"),
-  },
-  {
-    id: '3',
-   name: 'Seared Scallops with Herb Sauce', 
-   description: 'Pan-fried scallops served with herb and lemon dressing.', 
-   course: 'Starter', 
-   price: 95, 
-   image: require('../assets/Seared Scallops with Herb Sauce.jpg'),
-  },
-  {
-    id: '4', 
-    name: 'Roasted Tomato Soup', 
-    description: 'Rich roasted tomato soup topped with basil oil and croutons.', 
-    course: 'Starter',
-     price: 70, 
-    image: require('../assets/Roasted Tomato Soup.jpg'),
-  },
-  {
-    id: '5', 
-    name: 'Fillet Steak', 
-    description: 'Tender beef fillet with creamy peppercorn sauce and potatoes.', 
-    course: 'Main Course', 
-    price: 220, 
-    image: require('../assets/fillet-steak.jpg'),
-  },
-  {
-    id: '6', 
-    name: 'Pan-Fried Salmon', 
-    description: 'Salmon fillet served with creamy dill and mustard sauce.', 
-    course: 'Main Course', 
-    price: 155, 
-    image: require('../assets/Pan-Fried Salmon.jpg'),
-  },
-  {
-    id: '7', 
-    name: 'Classic Crème Brûlée', 
-    description: 'Smooth vanilla custard topped with a caramelised sugar crust.', 
-    course: 'Dessert', 
-    price: 125, 
-    image: require('../assets/Classic Crème Brûlée.jpg'),
-  },
-  {
-    id: '8', 
-    name: 'Chocolate Lava Pudding', 
-    description: 'Rich chocolate sponge with a gooey molten centre.', 
-    course: 'Dessert', 
-    price: 95, 
-    image: require('../assets/Chocolate Lava Pudding.jpg'),
-  }, 
-];
-
 // --- 3. MAIN APPLICATION COMPONENT ---
-export default function MenuScreen({ navigation, route }: Props) {
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenu);
+export default function MenuScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData }: Props) {
   const [orderedItems, setOrderedItems] = useState<MenuItem[]>([]);
-  // Add state for drinksData
-  const [currentDrinksData, setCurrentDrinksData] = useState(initialDrinksData);
   const isAdmin = route.params?.isAdmin;
 
   useEffect(() => {
-    // This effect handles updates coming from other screens
-    if (route.params?.updatedMenuItems) {
-      // If a full list is passed back (e.g., from RemoveItemsScreen), set it
-      setMenuItems(route.params.updatedMenuItems);
-    } else if (route.params?.newMenuItem) {
-      // If a single new item is added (from EditMenuScreen)
-      const newItem = route.params.newMenuItem;
-      // Prevent adding duplicates if user navigates back and forth
-      if (!menuItems.some(item => item.id === newItem.id)) {
-        setMenuItems(prevItems => [newItem, ...prevItems]);
-      }
-    }
-    // NEW: Handle updated drinks data
-    if (route.params?.updatedDrinksData) {
-      setCurrentDrinksData(route.params.updatedDrinksData);
-    }
-
     // Handle direct navigation requests from AdminWelcomeScreen
-    if ((route.params as any)?.openEdit) {
-      // Use a timeout to ensure the screen has mounted before navigating away
+    if (route.params?.openEdit) {
+      // Use a timeout to ensure the screen has mounted before navigating away; setMenuItems is passed from App.tsx
       setTimeout(() => navigation.replace('EditMenu', { currentMenuItems: menuItems }), 0);
     }
-    if ((route.params as any)?.openFilter) {
+    if (route.params?.openFilter) {
       // Use a timeout to ensure the screen has mounted before navigating away
-      setTimeout(() => navigation.replace('FilterByCourse', { currentMenuItems: menuItems }), 0);
+      setTimeout(() => navigation.replace('FilterByCourse', { currentMenuItems: menuItems, currentDrinksData: drinksData }), 0);
     }
 
   }, [route.params]);
 
   // Prevent rendering the menu if we are just passing through to another screen
   // This stops the "flicker" effect the user sees.
-  if ((route.params as any)?.openEdit || (route.params as any)?.openFilter) {
+  if (route.params?.openEdit || route.params?.openFilter) {
     return null; // Render nothing while the useEffect redirects
   }
 
@@ -183,7 +84,7 @@ export default function MenuScreen({ navigation, route }: Props) {
   };
 
   const ListHeader = () => {
-    const totalDrinkCount = currentDrinksData['Cold drinks'].length + currentDrinksData['Hot drinks'].length;
+    const totalDrinkCount = drinksData['Cold drinks'].length + drinksData['Hot drinks'].length;
     const totalItemCount = menuItems.length + totalDrinkCount;
 
     return (
@@ -192,14 +93,14 @@ export default function MenuScreen({ navigation, route }: Props) {
           <Image source={require('../assets/Logo.jpg')} style={styles.logoPlaceholder} />
           <Text style={styles.headerTitle}>The Menu</Text>
           <View style={styles.headerNavContainer}>
-            <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('FilterByCourse', { currentMenuItems: menuItems })}>
+            <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('FilterByCourse', { currentMenuItems: menuItems, currentDrinksData: drinksData })}>
               <Text style={styles.headerNavText}>Filter by course</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('Checkout', { orderedItems })}>
               <Text style={styles.headerNavText}>Checkout ({orderedItems.length})</Text>
             </TouchableOpacity>
             {isAdmin && (
-              <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('RemoveItems', { currentMenuItems: menuItems })}>
+              <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('RemoveItems', { currentMenuItems: menuItems, currentDrinksData: drinksData })}>
                 <Text style={styles.headerNavText}>Remove Items</Text>
               </TouchableOpacity>
             )}
@@ -245,7 +146,7 @@ export default function MenuScreen({ navigation, route }: Props) {
       <View style={styles.drinksContainer}>
         <View style={styles.drinksColumn}>
           <Text style={styles.drinksSubHeader}>Cold drinks</Text>
-          {currentDrinksData['Cold drinks'].map((drink, index) => { // Use currentDrinksData
+          {drinksData['Cold drinks'].map((drink, index) => { // Use drinksData from props
             return (
               <View key={index} style={styles.drinkItem}>
                 <Text style={styles.drinkText}>{drink}</Text>
@@ -258,7 +159,7 @@ export default function MenuScreen({ navigation, route }: Props) {
         </View>
         <View style={styles.drinksColumn}>
           <Text style={styles.drinksSubHeader}>Hot drinks</Text>
-          {currentDrinksData['Hot drinks'].map((drink, index) => ( // Use currentDrinksData
+          {drinksData['Hot drinks'].map((drink, index) => ( // Use drinksData from props
             <View key={index} style={styles.drinkItem}>
               <Text style={styles.drinkText}>{drink}</Text>
               <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
@@ -272,7 +173,7 @@ export default function MenuScreen({ navigation, route }: Props) {
   );
 
   return (
-    <ImageBackground source={require('../assets/Background.jpg')} style={styles.container} resizeMode="contain">
+    <ImageBackground source={require('../assets/Background.jpg')} style={styles.container} resizeMode="cover">
       <SafeAreaView style={styles.overlay}>
         <SectionList
             sections={menuSections}
@@ -281,7 +182,7 @@ export default function MenuScreen({ navigation, route }: Props) {
             renderSectionHeader={({ section: { title } }) => (
               <Text style={styles.courseHeader}>{title}</Text>
             )}
-            ListHeaderComponent={() => (<><ListHeader />{renderDrinksSection()}</>)}
+            ListHeaderComponent={<><ListHeader />{renderDrinksSection()}</>}
             contentContainerStyle={styles.scrollViewContent}
           />
       </SafeAreaView>
@@ -392,11 +293,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemImage: {
-    width: 90,
-    height: 90, 
-    borderRadius: 10,
+    width: 80,
+    height: 80, 
+    borderRadius: 40,
     marginRight: 12,
-    borderWidth: 1,
     borderColor: '#333',
   },
   itemDetails: {
@@ -432,6 +332,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     marginTop: 10,
+    backgroundColor: '#fff',
   },
   drinksColumn: {
     width: '45%',

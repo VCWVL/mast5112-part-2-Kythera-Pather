@@ -1,13 +1,8 @@
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground, FlatList } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList, MenuItem } from '../App';
+import { ScreenProps, MenuItem } from '../App';
 
-type CheckoutNavProp = StackNavigationProp<RootStackParamList, 'Checkout'>;
-type CheckoutRouteProp = RouteProp<RootStackParamList, 'Checkout'>;
-
-type Props = { navigation: CheckoutNavProp; route: CheckoutRouteProp };
+type Props = ScreenProps<'Checkout'>;
 
 export default function CheckoutScreen({ navigation, route }: Props) {
   // Assume orderedItems are passed via route params. Default to empty array if not provided.
@@ -47,9 +42,14 @@ export default function CheckoutScreen({ navigation, route }: Props) {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('Menu', {})}>
-          <Text style={styles.footerButtonText}>Menu</Text>
-        </TouchableOpacity>
+        <View style={styles.footerButtons}>
+          <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate('Menu', {})}>
+            <Text style={styles.footerButtonText}>Menu</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.footerButtonText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     </ImageBackground>
   );
@@ -126,12 +126,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  footerButton: {
+  footerButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 20,
+  },
+  menuButton: {
     backgroundColor: '#000',
     paddingVertical: 15,
+    paddingHorizontal: 40,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 20,
+  },
+  logoutButton: {
+    backgroundColor: '#bd7d1cff', // A distinct color for logout
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 8,
+    alignItems: 'center',
   },
   footerButtonText: {
     color: '#fff',

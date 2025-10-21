@@ -4,46 +4,55 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
-// Import the shared types from App.tsx
-import { RootStackParamList, Course, MenuItem } from "../App";
+import { ScreenProps, Course, MenuItem } from "../App";
 
-type EditMenuNavProp = StackNavigationProp<RootStackParamList, "EditMenu">;
-type EditMenuRouteProp = RouteProp<RootStackParamList, 'EditMenu'>;
-
-type Props = {
-  navigation: EditMenuNavProp;
-  route: EditMenuRouteProp;
-};
+type Props = ScreenProps<'EditMenu'>;
 // We exclude 'Drinks' because they are handled separately and not added via this form.
-const courses: Exclude<Course, 'Drinks'>[] = ['Specials', 'Starter', 'Main Course', 'Dessert'];
+const courseOptions = ['Specials', 'Starter', 'Main Course', 'Dessert', 'Hot Drink', 'Cold Drink'];
 
-export default function EditMenuScreen({ navigation, route }: Props) {
-  const { currentMenuItems } = route.params;
+export default function EditMenuScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData }: Props) {
+  const { currentMenuItems } = route.params; // We still get the current items to know what to navigate with
   const [dishName, setDishName] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState<Exclude<Course, 'Drinks'> | ''>('');
+  const [selectedCourse, setSelectedCourse] = useState('');
   const [price, setPrice] = useState("");
   const [image, setImage] = useState<string | null>(null);
 
+  const isDrink = selectedCourse === 'Hot Drink' || selectedCourse === 'Cold Drink';
+
   const handleSave = () => {
-    if (!dishName || !description || selectedCourse === '' || !price) {
+    if (!dishName || !selectedCourse) {
+      Alert.alert("Incomplete Form", "Please provide a name and select a course.");
+      return;
+    }
+
+    if (!isDrink && (!description || !price)) {
       Alert.alert("Incomplete Form", "Please fill out all fields before saving.");
       return;
     }
 
-    const newItem: MenuItem = {
-      id: `menuItem_${Date.now()}`, // Generate a unique ID
-      name: dishName,
-      description: description,
-      course: selectedCourse as Exclude<Course, 'Drinks'>,
-      price: parseFloat(price),
-      image: image, // Pass the image URI
-    };
+    if (isDrink) {
+      // Handle adding a drink
+      const drinkCategory = selectedCourse === 'Hot Drink' ? 'Hot drinks' : 'Cold drinks';
+      setDrinksData(prevDrinks => {
+        const newDrinks = [...prevDrinks[drinkCategory], dishName];
+        return { ...prevDrinks, [drinkCategory]: newDrinks };
+      });
+      Alert.alert("Success", `${dishName} has been added to ${drinkCategory}.`);
+    } else {
+      // Handle adding a food item
+      const newItem: MenuItem = {
+        id: `menuItem_${Date.now()}`, // Generate a unique ID
+        name: dishName,
+        description: description,
+        course: selectedCourse as Exclude<Course, 'Drinks'>,
+        price: parseFloat(price),
+        image: image, // Pass the image URI
+      };
+      setMenuItems(prevItems => [newItem, ...prevItems]);
+      Alert.alert("Success", `${newItem.name} has been added to the menu.`);
+    }
 
-    // Navigate back to MenuScreen and pass the new item as a parameter
-    navigation.navigate("Menu", { newMenuItem: newItem });
-
-    // Clear the form for the next entry
     setDishName("");
     setDescription("");
     setSelectedCourse('');
@@ -52,6 +61,13 @@ export default function EditMenuScreen({ navigation, route }: Props) {
   };
 
   const pickImage = async () => {
+    // Check for permissions
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert("Permission Required", "You need to allow access to your photos to upload an image.");
+      return;
+    }
+
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -86,42 +102,54 @@ export default function EditMenuScreen({ navigation, route }: Props) {
                 onChangeText={setDishName}
               />
 
-              <Text style={styles.label}>Description</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter a description"
-                value={description}
-                onChangeText={setDescription}
-                multiline
-              />
+              {!isDrink && (
+                <>
+                  <Text style={styles.label}>Description</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter a description"
+                    value={description}
+                    onChangeText={setDescription}
+                    multiline
+                  />
+                </>
+              )}
 
               <Text style={styles.label}>Select the Course</Text>
               <View style={styles.pickerContainer}>
                 <Picker
                   selectedValue={selectedCourse}
-                  onValueChange={(itemValue) => setSelectedCourse(itemValue as Exclude<Course, 'Drinks'>)}
+                  onValueChange={(itemValue) => setSelectedCourse(itemValue)}
                   style={styles.picker}
                 >
                   <Picker.Item label="Select a course" value="" />
-                  {courses.map(c => <Picker.Item key={c} label={c} value={c} />)}
+                  {courseOptions.map(c => <Picker.Item key={c} label={c} value={c} />)}
                 </Picker>
               </View>
 
-              <Text style={styles.label}>Price</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter a Price"
-                value={price}
-                onChangeText={setPrice}
-                keyboardType="numeric"
-              />
+              {!isDrink && (
+                <>
+                  <Text style={styles.label}>Price</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter a Price"
+                    value={price}
+                    onChangeText={setPrice}
+                    keyboardType="numeric"
+                  />
+                </>
+              )}
             </View>
 
             <View style={styles.middleSection}>
-              {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
-              <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-                <Text style={styles.buttonText}>Upload Image</Text>
-              </TouchableOpacity>
+              {!isDrink && (
+                <>
+                  {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
+                  <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+                    <Text style={styles.buttonText}>Upload Image</Text>
+                  </TouchableOpacity>
+                </>
+              )}
 
               <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
                 <Text style={styles.buttonText}>Save</Text>
@@ -129,11 +157,14 @@ export default function EditMenuScreen({ navigation, route }: Props) {
             </View>
 
             <View style={styles.navButtons}>
-              <TouchableOpacity style={styles.removeItemsButton} onPress={() => navigation.navigate("RemoveItems", { currentMenuItems })}>
+              <TouchableOpacity style={styles.removeItemsButton} onPress={() => navigation.navigate("RemoveItems", { currentMenuItems: menuItems, currentDrinksData: drinksData })}>
                 <Text style={styles.removeButtonText}>Remove Items</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.menuHomeButton} onPress={() => navigation.navigate("Menu", {})}>
                 <Text style={styles.buttonText}>Menu-Home</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate("Login")}>
+                <Text style={styles.logoutButtonText}>Logout</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -226,7 +257,7 @@ const styles = StyleSheet.create({
   removeItemsButton: {
     backgroundColor: '#fff',
     paddingVertical: 15,
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#ccc',
@@ -238,8 +269,20 @@ const styles = StyleSheet.create({
   menuHomeButton: {
     backgroundColor: '#a0a0a0',
     paddingVertical: 15,
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
     borderRadius: 20,
+  },
+  logoutButton: {
+    backgroundColor: '#bd7d1cff', // A distinct color for logout
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+  },
+  logoutButtonText: {
+    fontWeight: 'bold',
+    color: '#fff',
+    fontSize: 14,
+    textAlign: 'center',
   },
   imagePreview: {
     width: 100,

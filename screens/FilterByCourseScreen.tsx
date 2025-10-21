@@ -1,23 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground, FlatList, ScrollView, Alert } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList, MenuItem, Course } from '../App';
+import { ScreenProps, MenuItem, Course } from '../App';
 
-type FilterNavProp = StackNavigationProp<RootStackParamList, 'FilterByCourse'>;
-type FilterRouteProp = RouteProp<RootStackParamList, 'FilterByCourse'>;
-
-type Props = { navigation: FilterNavProp; route: FilterRouteProp };
+type Props = ScreenProps<'FilterByCourse'>;
 
 const filterCategories: ('All' | Course)[] = ['All', 'Specials', 'Starter', 'Main Course', 'Dessert', 'Drinks'];
 
-const drinksData = {
-  'Cold drinks': ['Any frizzy drink', "Fruit juice's", 'Ice water'],
-  'Hot drinks': ['Tea', 'Coffee', 'Hot chocolate'],
-};
-
 export default function FilterByCourseScreen({ navigation, route }: Props) {
-  const { currentMenuItems } = route.params;
+  const { currentMenuItems, currentDrinksData } = route.params;
   const [activeFilter, setActiveFilter] = useState<'All' | Course>('All');
   const [orderedItems, setOrderedItems] = useState<MenuItem[]>([]);
 
@@ -50,20 +40,43 @@ export default function FilterByCourseScreen({ navigation, route }: Props) {
     );
   };
 
+  const handleAddDrinkToCheckout = (drinkName: string) => {
+    const newDrinkItem: MenuItem = {
+      id: `drink_${drinkName}_${Date.now()}`, // Unique ID for the ordered item
+      name: drinkName,
+      description: 'A refreshing beverage',
+      course: 'Drinks',
+      price: 25, // Assign a default price for drinks
+      image: null,
+    };
+    setOrderedItems(prevItems => [...prevItems, newDrinkItem]);
+    Alert.alert("Item Added", `${drinkName} has been added to your order.`);
+  };
+
   const renderDrinksSection = () => (
     <View style={styles.drinksSectionContainer}>
       <Text style={styles.courseHeader}>Drinks</Text>
       <View style={styles.drinksContainer}>
         <View style={styles.drinksColumn}>
           <Text style={styles.drinksSubHeader}>Cold drinks</Text>
-          {drinksData['Cold drinks'].map((drink, index) => (
-            <Text key={index} style={styles.drinkText}>{drink}</Text>
+          {currentDrinksData['Cold drinks'].map((drink, index) => (
+            <View key={index} style={styles.drinkItem}>
+              <Text style={styles.drinkText}>{drink}</Text>
+              <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
+                <Text style={styles.checkoutButtonText}>Add</Text>
+              </TouchableOpacity>
+            </View>
           ))}
         </View>
         <View style={styles.drinksColumn}>
           <Text style={styles.drinksSubHeader}>Hot drinks</Text>
-          {drinksData['Hot drinks'].map((drink, index) => (
-            <Text key={index} style={styles.drinkText}>{drink}</Text>
+          {currentDrinksData['Hot drinks'].map((drink, index) => (
+            <View key={index} style={styles.drinkItem}>
+              <Text style={styles.drinkText}>{drink}</Text>
+              <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
+                <Text style={styles.checkoutButtonText}>Add</Text>
+              </TouchableOpacity>
+            </View>
           ))}
         </View>
       </View>
@@ -264,9 +277,14 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     marginBottom: 8,
   },
+  drinkItem: {
+    marginBottom: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   drinkText: { 
     fontSize: 13, 
-    color: '#666', 
-    marginBottom: 5 
+    flex: 1,
   },
 });
