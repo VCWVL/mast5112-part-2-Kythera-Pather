@@ -23,21 +23,21 @@ export default function WelcomeChefScreen({ navigation }: Props) {
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate("Menu", { isAdmin: true })}
+            onPress={() => navigation.navigate("Menu", { isAdmin: true } as any)}
           >
             <Text style={styles.buttonText}>Menu</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.button}
-            // onPress={() => navigation.navigate("FilterByCourse")} // Navigation disabled for now
+            onPress={() => navigation.navigate("Menu", { isAdmin: true, openFilter: true } as any)}
           >
             <Text style={styles.buttonText}>Filter by Course</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate("EditMenu")}
+            onPress={() => navigation.navigate("Menu", { isAdmin: true, openEdit: true } as any)}
           >
             <Text style={styles.buttonText}>Edit menu items</Text>
           </TouchableOpacity>
@@ -64,9 +64,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-  logo: { width: 70, height: 70, borderRadius: 35, marginRight: 15 },
-  image: { width: 250, height: 140, borderRadius: 10, marginBottom: 20 },
-  title: { fontSize: 20, fontWeight: "bold", color: "#fff" }, // Changed color for readability
+  logo: {
+   width: 70, 
+   height: 70, 
+   borderRadius: 35, 
+   marginRight: 15 
+  },
+  image: { 
+    width: 250, 
+    height: 140, 
+    borderRadius: 10, 
+    marginBottom: 20 
+  },
+  title: { 
+    fontSize: 20, 
+    fontWeight: "bold", 
+    color: "#fff" 
+  }, // Changed color for readability
   button: {
     backgroundColor: "#000",
     paddingVertical: 12,
@@ -74,5 +88,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 8,
   },
-  buttonText: { color: "#eeececff", fontWeight: "bold" },
+  buttonText: { 
+    color: "#eeececff", 
+    fontWeight: "bold" 
+  },
 });

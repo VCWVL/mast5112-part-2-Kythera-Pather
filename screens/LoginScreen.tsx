@@ -30,7 +30,7 @@ export default function LoginScreen({ navigation }: Props) {
   };
 
   return (
-    <ImageBackground source={require("../assets/Background.jpg")} style={styles.container} resizeMode="cover">
+    <ImageBackground source={require("../assets/Background.jpg")} style={styles.container} resizeMode="stretch">
       <View style={styles.overlay}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.title}>Welcome to Christoffel's Menu</Text>
@@ -68,7 +68,12 @@ export default function LoginScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { 
+    flex: 1,
+    // Adding height: '100%' helps ensure the container fills the screen on web
+    height: '100%',
+    width: '100%',
+  },
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -80,11 +85,40 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
   },
-  title: { fontSize: 20, fontWeight: "bold", marginBottom: 10, color: "#fff", textAlign: "center" },
-  subtitle: { fontStyle: "italic", marginBottom: 15, color: "#fff", textAlign: "center" },
-  logo: { width: 80, height: 80, borderRadius: 40, marginBottom: 10 },
-  banner: { width: 220, height: 120, marginBottom: 20 },
-  label: { alignSelf: "flex-start", marginLeft: "10%", fontWeight: "bold", marginTop: 10, color: "#fff" },
+  title: { 
+    fontSize: 20, 
+    fontWeight: "bold", 
+    marginBottom: 10, 
+    color: "#fff", 
+    textAlign: "center" 
+  },
+  subtitle: { 
+    fontSize: 16, 
+    fontStyle: "italic", 
+    marginBottom: 15, 
+    color: "#fff", 
+    textAlign: "center" 
+  },
+  logo: { 
+    width: 80, 
+    height: 80, 
+    borderRadius: 40, 
+    marginBottom: 10 
+  },
+  banner: { 
+    resizeMode: "cover", 
+    width: 220, 
+    height: 120, 
+    borderRadius: 10, 
+    marginBottom: 20 
+  },
+  label: { 
+    alignSelf: "flex-start",
+     marginLeft: "10%", 
+     fontWeight: "bold", 
+     marginTop: 10, 
+     color: "#fff" 
+    },
   input: {
     width: "80%",
     borderWidth: 1,
@@ -104,12 +138,5 @@ const styles = StyleSheet.create({
   saveText: { 
     color: "#fff", 
     fontWeight: "bold" 
-  },
-  ImageBackground: {
-    flex: 1,
-    resizeMode: "cover",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
   },
 });

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, SafeAreaView,Image, ImageBackground} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground, Alert, ScrollView, SectionList } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList, MenuItem, Course } from '../App';
 
 type MenuNavProp = StackNavigationProp<RootStackParamList, 'Menu'>;
-import { SectionList } from 'react-native';
 
 type MenuRouteProp = RouteProp<RootStackParamList, 'Menu'>;
 type Props = { navigation: MenuNavProp; route: MenuRouteProp };
@@ -19,7 +18,7 @@ const predefinedCourses: Course[] = [
 ];
 
 // Data for the unique 'Drinks' section layout
-const drinksData = {
+const initialDrinksData = { // Renamed to initialDrinksData
   'Cold drinks': ['Any frizzy drink', "Fruit juice's", 'Ice water'],
   'Hot drinks': ['Tea', 'Coffee', 'Hot chocolate'],
 };
@@ -89,12 +88,15 @@ const initialMenu: MenuItem[] = [
     course: 'Dessert', 
     price: 95, 
     image: require('../assets/Chocolate Lava Pudding.jpg'),
-  },
+  }, 
 ];
 
 // --- 3. MAIN APPLICATION COMPONENT ---
 export default function MenuScreen({ navigation, route }: Props) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenu);
+  const [orderedItems, setOrderedItems] = useState<MenuItem[]>([]);
+  // Add state for drinksData
+  const [currentDrinksData, setCurrentDrinksData] = useState(initialDrinksData);
   const isAdmin = route.params?.isAdmin;
 
   useEffect(() => {
@@ -110,7 +112,28 @@ export default function MenuScreen({ navigation, route }: Props) {
         setMenuItems(prevItems => [newItem, ...prevItems]);
       }
     }
+    // NEW: Handle updated drinks data
+    if (route.params?.updatedDrinksData) {
+      setCurrentDrinksData(route.params.updatedDrinksData);
+    }
+
+    // Handle direct navigation requests from AdminWelcomeScreen
+    if ((route.params as any)?.openEdit) {
+      // Use a timeout to ensure the screen has mounted before navigating away
+      setTimeout(() => navigation.replace('EditMenu', { currentMenuItems: menuItems }), 0);
+    }
+    if ((route.params as any)?.openFilter) {
+      // Use a timeout to ensure the screen has mounted before navigating away
+      setTimeout(() => navigation.replace('FilterByCourse', { currentMenuItems: menuItems }), 0);
+    }
+
   }, [route.params]);
+
+  // Prevent rendering the menu if we are just passing through to another screen
+  // This stops the "flicker" effect the user sees.
+  if ((route.params as any)?.openEdit || (route.params as any)?.openFilter) {
+    return null; // Render nothing while the useEffect redirects
+  }
 
   const getAveragePrice = (course: Course): number => {
     const courseItems = menuItems.filter(item => item.course === course);
@@ -138,6 +161,11 @@ export default function MenuScreen({ navigation, route }: Props) {
     // Use the uploaded image URI if it exists, otherwise use the require() path
     const imageSource = typeof item.image === 'string' ? { uri: item.image } : item.image;
 
+    const handleAddToCheckout = () => {
+      setOrderedItems(prevItems => [...prevItems, item]);
+      Alert.alert("Item Added", `${item.name} has been added to your order.`);
+    };
+
     return (
       <View style={styles.menuItemCard}>
         <Image source={imageSource || require('../assets/Logo.jpg')} style={styles.itemImage} />
@@ -146,7 +174,7 @@ export default function MenuScreen({ navigation, route }: Props) {
             {item.name} - R{item.price.toFixed(0)}
           </Text>
           <Text style={styles.itemDescription}>{item.description}</Text>
-          <TouchableOpacity style={styles.checkoutButton}>
+          <TouchableOpacity style={styles.checkoutButton} onPress={handleAddToCheckout}>
             <Text style={styles.checkoutButtonText}>Add to checkout</Text>
           </TouchableOpacity>
         </View>
@@ -154,44 +182,62 @@ export default function MenuScreen({ navigation, route }: Props) {
     );
   };
 
-  const ListHeader = () => (
-    <>
-      <View style={styles.header}>
-        <Image source={require('../assets/Logo.jpg')} style={styles.logoPlaceholder} />
-        <Text style={styles.headerTitle}>The Menu</Text>
-        <View style={styles.headerNavContainer}>
-          <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('FilterByCourse')}>
-            <Text style={styles.headerNavText}>Filter by course</Text>
-          </TouchableOpacity>
-          {isAdmin && (
-            <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('RemoveItems', { currentMenuItems: menuItems })}>
-              <Text style={styles.headerNavText}>Remove Items</Text>
+  const ListHeader = () => {
+    const totalDrinkCount = currentDrinksData['Cold drinks'].length + currentDrinksData['Hot drinks'].length;
+    const totalItemCount = menuItems.length + totalDrinkCount;
+
+    return (
+      <>
+        <View style={styles.header}>
+          <Image source={require('../assets/Logo.jpg')} style={styles.logoPlaceholder} />
+          <Text style={styles.headerTitle}>The Menu</Text>
+          <View style={styles.headerNavContainer}>
+            <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('FilterByCourse', { currentMenuItems: menuItems })}>
+              <Text style={styles.headerNavText}>Filter by course</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.goBack()}>
-            <Text style={styles.headerNavText}>Back</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('Checkout', { orderedItems })}>
+              <Text style={styles.headerNavText}>Checkout ({orderedItems.length})</Text>
+            </TouchableOpacity>
+            {isAdmin && (
+              <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('RemoveItems', { currentMenuItems: menuItems })}>
+                <Text style={styles.headerNavText}>Remove Items</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.goBack()}>
+              <Text style={styles.headerNavText}>Back</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-      <View style={styles.statsContainer}>
-        <View style={styles.statBox}>
-          <Text style={styles.statTitle}>Total number of menu items</Text>
-          <Text style={styles.statValue}>{menuItems.length} Items</Text>
+        <View style={styles.statsContainer}>
+          <View style={styles.statBox}>
+            <Text style={styles.statTitle}>Total number of menu items</Text>
+            <Text style={styles.statValue}>{totalItemCount} Items</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statTitle}>Average price of each course</Text>
+            {predefinedCourses.filter(c => c !== 'Drinks').map(course => {
+              const avg = getAveragePrice(course);
+              if (avg > 0) { return <Text key={course} style={styles.statValueSmall}>{course}: R{avg.toFixed(0)}</Text>; }
+              return null;
+            })}
+          </View>
         </View>
-        <View style={styles.statBox}>
-          <Text style={styles.statTitle}>Average price of each course</Text>
-          {predefinedCourses.filter(c => c !== 'Drinks').map(course => {
-            const avg = getAveragePrice(course);
-            if (avg > 0) {
-              return (
-                <Text key={course} style={styles.statValueSmall}>{course}: R{avg.toFixed(0)}</Text>
-              );
-            }
-          })}
-        </View>
-      </View>
-    </>
-  );
+      </>
+    );
+  };
+
+  const handleAddDrinkToCheckout = (drinkName: string) => {
+    const newDrinkItem: MenuItem = {
+      id: `drink_${drinkName}_${Date.now()}`, // Unique ID for the ordered item
+      name: drinkName,
+      description: 'A refreshing beverage',
+      course: 'Drinks',
+      price: 25, // Assign a default price for drinks
+      image: null,
+    };
+    setOrderedItems(prevItems => [...prevItems, newDrinkItem]);
+    Alert.alert("Item Added", `${drinkName} has been added to your order.`);
+  };
 
   const renderDrinksSection = () => (
     <View>
@@ -199,19 +245,25 @@ export default function MenuScreen({ navigation, route }: Props) {
       <View style={styles.drinksContainer}>
         <View style={styles.drinksColumn}>
           <Text style={styles.drinksSubHeader}>Cold drinks</Text>
-          {drinksData['Cold drinks'].map((drink, index) => (
-            <View key={index} style={styles.drinkItem}>
-              <Text style={styles.drinkText}>{drink}</Text>
-              <View style={styles.drinkLine} />
-            </View>
-          ))}
+          {currentDrinksData['Cold drinks'].map((drink, index) => { // Use currentDrinksData
+            return (
+              <View key={index} style={styles.drinkItem}>
+                <Text style={styles.drinkText}>{drink}</Text>
+                <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
+                  <Text style={styles.checkoutButtonText}>Add</Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })}
         </View>
         <View style={styles.drinksColumn}>
           <Text style={styles.drinksSubHeader}>Hot drinks</Text>
-          {drinksData['Hot drinks'].map((drink, index) => (
+          {currentDrinksData['Hot drinks'].map((drink, index) => ( // Use currentDrinksData
             <View key={index} style={styles.drinkItem}>
               <Text style={styles.drinkText}>{drink}</Text>
-              <View style={styles.drinkLine} />
+              <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
+                <Text style={styles.checkoutButtonText}>Add</Text>
+              </TouchableOpacity>
             </View>
           ))}
         </View>
@@ -223,16 +275,15 @@ export default function MenuScreen({ navigation, route }: Props) {
     <ImageBackground source={require('../assets/Background.jpg')} style={styles.container} resizeMode="cover">
       <SafeAreaView style={styles.overlay}>
         <SectionList
-          sections={menuSections}
-          keyExtractor={(item) => item.id}
-          renderItem={renderMenuItemCard}
-          renderSectionHeader={({ section: { title } }) => (
-            <Text style={styles.courseHeader}>{title}</Text>
-          )}
-          ListHeaderComponent={ListHeader}
-          ListFooterComponent={renderDrinksSection}
-          contentContainerStyle={styles.scrollViewContent}
-        />
+            sections={menuSections}
+            keyExtractor={(item) => item.id}
+            renderItem={renderMenuItemCard}
+            renderSectionHeader={({ section: { title } }) => (
+              <Text style={styles.courseHeader}>{title}</Text>
+            )}
+            ListHeaderComponent={() => (<><ListHeader />{renderDrinksSection()}</>)}
+            contentContainerStyle={styles.scrollViewContent}
+          />
       </SafeAreaView>
     </ImageBackground>
   );
@@ -241,26 +292,55 @@ export default function MenuScreen({ navigation, route }: Props) {
 // --- 4. STYLES ---
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    minHeight: '100%',
   },
   overlay: {
     flex: 1, // This ensures the safe area fills the background
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Semi-transparent white background
+    backgroundColor: 'rgba(255, 255, 255, 0.6)', // Semi-transparent white background
   },
   scrollViewContent: {
     paddingHorizontal: 15,
-    paddingBottom: 30,
+    paddingBottom: 15,
   },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, marginBottom: 10 },
-  logoPlaceholder: { width: 60, height: 60, borderRadius: 30, borderWidth: 1, borderColor: '#333', marginRight: 10 },
+  header: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    paddingHorizontal: 15, 
+    paddingVertical: 10, 
+    marginBottom: 10 
+  },
+  logoPlaceholder: { 
+    width: 60, 
+    height: 60, 
+    borderRadius: 30, 
+    marginRight: 10, 
+    borderWidth: 1, 
+    borderColor: '#333',
+  },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     flex: 1,
   },
-  headerNavContainer: { alignItems: 'flex-end' },
-  headerNavButton: { backgroundColor: '#fff', paddingHorizontal: 5, paddingVertical: 1, borderWidth: 1, borderColor: '#333', borderRadius: 3, marginBottom: 2 },
-  headerNavText: { fontSize: 10, color: '#333' },
+  headerNavContainer: {  
+    justifyContent: 'flex-end', 
+    alignItems: 'flex-end' 
+  },
+  headerNavButton: { 
+    backgroundColor: '#fff', 
+    paddingHorizontal: 5, 
+    paddingVertical: 1, 
+    borderWidth: 1, 
+    borderColor: '#333', 
+    borderRadius: 3, 
+    marginBottom: 2 
+  },
+  headerNavText: { 
+    fontSize: 10, 
+    fontWeight: 'bold', 
+    color: '#333' 
+  },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -274,9 +354,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#333',
   },
-  statTitle: { fontSize: 12, fontWeight: '600', color: '#333', marginBottom: 4 },
-  statValue: { fontSize: 14, fontWeight: 'bold', color: '#333', lineHeight: 18 },
-  statValueSmall: { fontSize: 12, fontWeight: '500', color: '#333', lineHeight: 16 },
+  statTitle: { 
+    fontSize: 12, 
+    fontWeight: '600', 
+    color: '#333', 
+    marginBottom: 4 
+  },
+  statValue: { 
+    fontSize: 14, 
+    fontWeight: 'bold', 
+    color: '#333', 
+    lineHeight: 18 
+  },
+  statValueSmall: { 
+    fontSize: 12, 
+    fontWeight: '500', 
+    color: '#333', 
+    lineHeight: 16 
+  },
   courseHeader: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -347,7 +442,14 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     marginBottom: 8,
   },
-  drinkItem: { marginBottom: 5, flexDirection: 'row', alignItems: 'center' },
-  drinkText: { fontSize: 13 },
-  drinkLine: { flex: 1, height: 1, backgroundColor: '#ccc', marginLeft: 8 },
+  drinkItem: { 
+    marginBottom: 5, 
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  drinkText: { 
+    fontSize: 13,
+    flex: 1,
+  },
 });

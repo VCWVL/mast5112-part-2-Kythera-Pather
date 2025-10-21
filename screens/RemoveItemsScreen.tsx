@@ -13,7 +13,7 @@ const predefinedCourses: Course[] = ['Specials', 'Starter', 'Main Course', 'Dess
 const initialDrinksData = {
   'Cold drinks': ['Any frizzy drink', "Fruit juice's", 'Ice water'],
   'Hot drinks': ['Tea', 'Coffee', 'Hot chocolate'],
-};
+}; // This will be used as initial state for drinks
 
 export default function RemoveItemsScreen({ navigation, route }: Props) {
   const { currentMenuItems } = route.params;
@@ -36,8 +36,18 @@ export default function RemoveItemsScreen({ navigation, route }: Props) {
       Alert.alert("No Changes", "No items were selected for removal.");
       return;
     }
-    const updatedMenuItems = menuItems.filter(item => !itemsToRemove.has(item.id)); // Filter out removed items
-    navigation.navigate('Menu', { updatedMenuItems: updatedMenuItems });
+    // Filter out regular menu items
+    const updatedMenuItems = menuItems.filter(item => !itemsToRemove.has(item.id));
+
+    // Filter out drink items
+    const newColdDrinks = drinks['Cold drinks'].filter(drink => !itemsToRemove.has(`cold-${drink.replace(/\s+/g, '-')}`));
+    const newHotDrinks = drinks['Hot drinks'].filter(drink => !itemsToRemove.has(`hot-${drink.replace(/\s+/g, '-')}`));
+    const updatedDrinksData = { // This is the object passed back to MenuScreen
+      'Cold drinks': newColdDrinks,
+      'Hot drinks': newHotDrinks,
+    };
+
+    navigation.navigate('Menu', { updatedMenuItems: updatedMenuItems, updatedDrinksData: updatedDrinksData });
   };
 
   const handleCancel = () => {
@@ -86,33 +96,36 @@ export default function RemoveItemsScreen({ navigation, route }: Props) {
     );
   };
 
-  const ListHeader = () => (
-     <>
-       <View style={styles.header}>
-         <Image source={require('../assets/Logo.jpg')} style={styles.logoPlaceholder} />
-         <Text style={styles.headerTitle}>Remove Items</Text>
-         <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.goBack()}>
-           <Text style={styles.headerNavText}>Back</Text>
-         </TouchableOpacity>
-       </View>
-       <View style={styles.statsContainer}>
-         <View style={styles.statBox}>
-           <Text style={styles.statTitle}>Total number of menu items</Text>
-           <Text style={styles.statValue}>{menuItems.length} Items</Text>
-         </View>
-         <View style={styles.statBox}>
-           <Text style={styles.statTitle}>Average price of each course</Text>
-           {predefinedCourses.filter(c => c !== 'Drinks').map(course => {
-             const avg = getAveragePrice(course);
-             if (avg > 0) {
-               return <Text key={course} style={styles.statValueSmall}>{course}: R{avg.toFixed(0)}</Text>;
-             }
-             return null;
-           })}
-         </View>
-       </View>
-     </>
-  );
+  const ListHeader = () => {
+    const totalDrinkCount = drinks['Cold drinks'].length + drinks['Hot drinks'].length;
+    const totalItemCount = menuItems.length + totalDrinkCount;
+
+    return (
+      <>
+        <View style={styles.header}>
+          <Image source={require('../assets/Logo.jpg')} style={styles.logoPlaceholder} />
+          <Text style={styles.headerTitle}>Remove Items</Text>
+          <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.goBack()}>
+            <Text style={styles.headerNavText}>Back</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.statsContainer}>
+          <View style={styles.statBox}>
+            <Text style={styles.statTitle}>Total number of menu items</Text>
+            <Text style={styles.statValue}>{totalItemCount} Items</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statTitle}>Average price of each course</Text>
+            {predefinedCourses.filter(c => c !== 'Drinks').map(course => {
+              const avg = getAveragePrice(course);
+              if (avg > 0) { return <Text key={course} style={styles.statValueSmall}>{course}: R{avg.toFixed(0)}</Text>; }
+              return null;
+            })}
+          </View>
+        </View>
+      </>
+    );
+  };
 
   const renderDrinksSection = () => (
      <View>
@@ -120,7 +133,7 @@ export default function RemoveItemsScreen({ navigation, route }: Props) {
        <View style={styles.drinksContainer}>
          <View style={styles.drinksColumn}>
            <Text style={styles.drinksSubHeader}>Cold drinks</Text>
-           {drinks['Cold drinks'].map((drink, index) => {
+           {drinks['Cold drinks'].map((drink, index) => { // Use 'drinks' state here
              const drinkId = `cold-${drink.replace(/\s+/g, '-')}`;
              const isMarkedForRemoval = itemsToRemove.has(drinkId);
              return (
@@ -138,7 +151,7 @@ export default function RemoveItemsScreen({ navigation, route }: Props) {
          </View>
          <View style={styles.drinksColumn}>
            <Text style={styles.drinksSubHeader}>Hot drinks</Text>
-           {drinks['Hot drinks'].map((drink, index) => {
+           {drinks['Hot drinks'].map((drink, index) => { // Use 'drinks' state here
              const drinkId = `hot-${drink.replace(/\s+/g, '-')}`;
              const isMarkedForRemoval = itemsToRemove.has(drinkId);
              return (
@@ -159,8 +172,7 @@ export default function RemoveItemsScreen({ navigation, route }: Props) {
   );
 
   const ListFooter = () => (
-     <>
-       {renderDrinksSection()}
+     <View>
        <View style={styles.footerButtons}>
          <TouchableOpacity style={styles.footerButton} onPress={handleSave}>
            <Text style={styles.footerButtonText}>Save</Text>
@@ -169,7 +181,7 @@ export default function RemoveItemsScreen({ navigation, route }: Props) {
            <Text style={styles.footerButtonText}>Cancel</Text>
          </TouchableOpacity>
        </View>
-     </>
+     </View>
   );
 
   return (
@@ -180,7 +192,7 @@ export default function RemoveItemsScreen({ navigation, route }: Props) {
            keyExtractor={(item) => item.id}
            renderItem={renderMenuItemCard}
            renderSectionHeader={({ section: { title } }) => <Text style={styles.courseHeader}>{title}</Text>}
-           ListHeaderComponent={ListHeader}
+           ListHeaderComponent={() => (<><ListHeader />{renderDrinksSection()}</>)}
            ListFooterComponent={ListFooter}
            contentContainerStyle={styles.scrollViewContent}
            extraData={itemsToRemove} // Ensures re-render when an item is marked
@@ -191,20 +203,85 @@ export default function RemoveItemsScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  overlay: { flex: 1, backgroundColor: 'rgba(255, 255, 255, 0.9)' },
-  scrollViewContent: { paddingHorizontal: 15, paddingBottom: 30 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, marginBottom: 10 },
-  logoPlaceholder: { width: 60, height: 60, borderRadius: 30 },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', flex: 1, textAlign: 'center' },
-  headerNavButton: { backgroundColor: '#000', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 5 },
-  headerNavText: { fontSize: 14, color: '#fff' },
-  statsContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  statBox: { width: '48%', padding: 10, backgroundColor: '#fff', borderRadius: 5, borderWidth: 1, borderColor: '#333' },
-  statTitle: { fontSize: 12, fontWeight: 'bold', textDecorationLine: 'underline', color: '#333', marginBottom: 4 },
-  statValue: { fontSize: 14, fontWeight: 'bold', color: '#333' },
-  statValueSmall: { fontSize: 12, fontWeight: '500', color: '#333' },
-  courseHeader: { fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginTop: 20, marginBottom: 10, color: '#333' },
+  container: { 
+    minHeight: '100%',
+  },
+  overlay: { 
+    flex: 1, 
+    backgroundColor: 'rgba(255, 255, 255, 0.6)' 
+  },
+  scrollViewContent: { 
+    paddingHorizontal: 15, 
+    paddingBottom: 30 
+  },
+  header: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    paddingVertical: 10, 
+    marginBottom: 10 
+  },
+  logoPlaceholder: { 
+    width: 60, 
+    height: 60, 
+    borderRadius: 30 
+  },
+  headerTitle: { 
+    fontSize: 24, 
+    fontWeight: 'bold', 
+    flex: 1, 
+    textAlign: 'center' 
+  },
+  headerNavButton: { 
+    backgroundColor: '#000', 
+    paddingHorizontal: 15, 
+    paddingVertical: 8, 
+    borderRadius: 5 
+  },
+  headerNavText: { 
+    fontSize: 14, 
+    fontWeight: 'bold', 
+    color: '#fff' 
+  },
+  statsContainer: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginBottom: 20 
+  },
+  statBox: { 
+    width: '48%', 
+    padding: 10, 
+    backgroundColor: '#fff', 
+    borderRadius: 5, 
+    borderWidth: 1, 
+    borderColor: '#333' 
+  },
+  statTitle: { 
+    fontSize: 12, 
+    fontWeight: 'bold', 
+    textDecorationLine: 'underline', 
+    color: '#333', 
+    marginBottom: 4 
+  },
+  statValue: { 
+    fontSize: 14, 
+    fontWeight: 'bold', 
+    color: '#333' 
+  },
+  statValueSmall: { 
+    fontSize: 12, 
+    fontWeight: '500', 
+    color: '#333' 
+  },
+  courseHeader: { 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    textAlign: 'center', 
+    marginTop: 20, 
+    marginBottom: 10, 
+    textDecorationLine: 'underline', 
+    color: '#333' 
+  },
   menuItemCard: {
      flexDirection: 'row',
      backgroundColor: '#fff',
@@ -219,10 +296,26 @@ const styles = StyleSheet.create({
      backgroundColor: '#ffdddd', // Highlight items marked for removal
      borderColor: '#c00',
   },
-  itemImage: { width: 80, height: 80, borderRadius: 40, marginRight: 12 },
-  itemDetails: { flex: 1 },
-  itemName: { fontSize: 15, fontWeight: 'bold', color: '#222', marginBottom: 5 },
-  itemDescription: { fontSize: 13, color: '#666', marginBottom: 8 },
+  itemImage: { 
+    width: 80, 
+    height: 80, 
+    borderRadius: 40, 
+    marginRight: 12 
+  },
+  itemDetails: { 
+    flex: 1 
+  },
+  itemName: { 
+    fontSize: 15, 
+    fontWeight: 'bold', 
+    color: '#222', 
+    marginBottom: 5 
+  },
+  itemDescription: { 
+    fontSize: 13, 
+    color: '#666',
+     marginBottom: 8 
+    },
   removeButton: {
      backgroundColor: '#add8e6', // Light blue
      paddingHorizontal: 12,
@@ -233,7 +326,10 @@ const styles = StyleSheet.create({
   removeButtonActive: {
      backgroundColor: '#ff6347', // A red/tomato color for the "UNDO" state
   },
-  removeButtonText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
+  removeButtonText: { color: '#fff', 
+    fontSize: 12, 
+    fontWeight: 'bold' 
+  },
   drinksContainer: {
      flexDirection: 'row',
      justifyContent: 'space-around',
@@ -243,8 +339,15 @@ const styles = StyleSheet.create({
      borderRadius: 8,
      marginTop: 10,
   },
-  drinksColumn: { width: '45%' },
-  drinksSubHeader: { fontSize: 14, fontWeight: 'bold', textDecorationLine: 'underline', marginBottom: 8 },
+  drinksColumn: { 
+    width: '45%' 
+  },
+  drinksSubHeader: { 
+    fontSize: 14, 
+    fontWeight: 'bold', 
+    textDecorationLine: 'underline',
+   marginBottom: 8 
+  },
   drinkItem: {
      flexDirection: 'row',
      justifyContent: 'space-between',

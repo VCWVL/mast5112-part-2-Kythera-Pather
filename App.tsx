@@ -10,8 +10,8 @@ import WelcomeChefScreen from "./screens/AdminWelcomeScreen";
 import MenuScreen from "./screens/MenuScreen"; // Make sure this is imported
 import EditMenuScreen from "./screens/EditMenuScreen";
 import RemoveItemsScreen from "./screens/RemoveItemsScreen";
-// import FilterByCourseScreen from "./screens/FilterByCourseScreen";
-// import CheckoutScreen from "./screens/CheckoutScreen";
+import FilterByCourseScreen from "./screens/FilterByCourseScreen";
+import CheckoutScreen from "./screens/CheckoutScreen";
 
 // Define a shared Course type
 export type Course = 'Specials' | 'Starter' | 'Main Course' | 'Dessert' | 'Drinks';
@@ -21,11 +21,11 @@ export type MenuItem = { id: string; name: string; description: string; course: 
 export type RootStackParamList = {
   Login: undefined;
   WelcomeChef: undefined;
-  Menu: { newMenuItem?: MenuItem; updatedMenuItems?: MenuItem[]; isAdmin?: boolean };
-  EditMenu: undefined;
+  Menu: { newMenuItem?: MenuItem; updatedMenuItems?: MenuItem[]; updatedDrinksData?: { 'Cold drinks': string[]; 'Hot drinks': string[] }; isAdmin?: boolean };
+  EditMenu: { currentMenuItems: MenuItem[] };
   RemoveItems: { currentMenuItems: MenuItem[] };
-  FilterByCourse: undefined;
-  Checkout: undefined;
+  FilterByCourse: { currentMenuItems: MenuItem[] };
+  Checkout: { orderedItems: MenuItem[] };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -71,6 +71,18 @@ export default function App() {
           name="RemoveItems"
           component={RemoveItemsScreen}
           options={{ title: "Remove Items" }}
+        />
+
+        <Stack.Screen
+          name="FilterByCourse"
+          component={FilterByCourseScreen}
+          options={{ title: "Filter By Course" }}
+        />
+
+        <Stack.Screen
+          name="Checkout"
+          component={CheckoutScreen}
+          options={{ title: "Checkout" }}
         />
       </Stack.Navigator>
     </NavigationContainer>
