@@ -8,10 +8,12 @@ export default function CheckoutScreen({ navigation, route }: Props) {
   // Assume orderedItems are passed via route params. Default to empty array if not provided.
   const { orderedItems = [] } = route.params || {};
 
+  // Calculate total amount of ordered items 
   const totalAmount = useMemo(() => {
     return orderedItems.reduce((sum, item) => sum + item.price, 0);
   }, [orderedItems]);
 
+  // Render each ordered item 
   const renderOrderItem = ({ item }: { item: MenuItem }) => (
     <View style={styles.itemBox}>
       <Text style={styles.itemText}>{item.name} - R{item.price.toFixed(0)}</Text>
@@ -19,6 +21,7 @@ export default function CheckoutScreen({ navigation, route }: Props) {
   );
 
   return (
+    // Give a background image to the checkout screen
     <ImageBackground source={require('../assets/Background.jpg')} style={styles.container} resizeMode="cover">
       <SafeAreaView style={styles.overlay}>
         <View style={styles.header}>
@@ -139,7 +142,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoutButton: {
-    backgroundColor: '#bd7d1cff', // A distinct color for logout
+    // A distinct color for logout
+    backgroundColor: '#bd7d1cff', 
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 8,

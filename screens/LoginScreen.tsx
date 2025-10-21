@@ -8,6 +8,7 @@ type LoginNavProp = StackNavigationProp<RootStackParamList, "Login">;
 
 type Props = { navigation: LoginNavProp };
 
+// The login screen component 
 export default function LoginScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -20,7 +21,7 @@ export default function LoginScreen({ navigation }: Props) {
       setPassword("");
     }, [])
   );
-
+// Function to handle login button press 
   const handleLogin = () => {
     if (username.toLowerCase() === "chef") {
       navigation.navigate("WelcomeChef");
@@ -30,13 +31,14 @@ export default function LoginScreen({ navigation }: Props) {
   };
 
   return (
+    // Give the background image a stretch resize mode to cover the entire screen
     <ImageBackground source={require("../assets/Background.jpg")} style={styles.container} resizeMode="stretch">
       <View style={styles.overlay}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.title}>Welcome to Christoffel's Menu</Text>
           <Image source={require("../assets/Logo.jpg")} style={styles.logo} />
           <Text style={styles.subtitle}>We hope you have an amazing experience with us</Text>
-
+          
           <Image source={require("../assets/Menu Banner.jpg")} style={styles.banner} />
 
           <Text style={styles.label}>Username</Text>
@@ -47,7 +49,7 @@ export default function LoginScreen({ navigation }: Props) {
             value={username}
             onChangeText={setUsername}
           />
-
+          
           <Text style={styles.label}>Password</Text>
           <TextInput
             style={styles.input}
@@ -57,7 +59,7 @@ export default function LoginScreen({ navigation }: Props) {
             value={password}
             onChangeText={setPassword}
           />
-
+          
           <TouchableOpacity style={styles.saveButton} onPress={handleLogin}>
             <Text style={styles.saveText}>Login</Text>
           </TouchableOpacity>
@@ -80,7 +82,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   scrollContent: {
-    flexGrow: 1, // This is crucial for centering content vertically
+    // This is for centering content vertically
+    flexGrow: 1, 
     alignItems: "center",
     justifyContent: "center",
     padding: 20,

@@ -4,6 +4,7 @@ import { ScreenProps, MenuItem, Course } from '../App';
 
 type Props = ScreenProps<'Menu'>;
 
+// Predefined list of courses for consistent ordering
 const predefinedCourses: Course[] = [
   'Specials',
   'Starter',
@@ -12,7 +13,7 @@ const predefinedCourses: Course[] = [
   'Drinks',
 ];
 
-// --- 3. MAIN APPLICATION COMPONENT ---
+// Main App componetent for displaying the menu
 export default function MenuScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData }: Props) {
   const [orderedItems, setOrderedItems] = useState<MenuItem[]>([]);
   const isAdmin = route.params?.isAdmin;
@@ -35,7 +36,8 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
   if (route.params?.openEdit || route.params?.openFilter) {
     return null; // Render nothing while the useEffect redirects
   }
-
+ 
+  // Function to calculate average price for a given course
   const getAveragePrice = (course: Course): number => {
     const courseItems = menuItems.filter(item => item.course === course);
     if (courseItems.length === 0) {
@@ -45,6 +47,7 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
     return total / courseItems.length;
   };
 
+  // Group menu items by course for SectionList
   const groupedMenu = menuItems.reduce((acc, item) => {
     (acc[item.course] = acc[item.course] || []).push(item);
     return acc;
@@ -62,12 +65,14 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
     // Use the uploaded image URI if it exists, otherwise use the require() path
     const imageSource = typeof item.image === 'string' ? { uri: item.image } : item.image;
 
+    // Handle adding items to the checkout
     const handleAddToCheckout = () => {
       setOrderedItems(prevItems => [...prevItems, item]);
       Alert.alert("Item Added", `${item.name} has been added to your order.`);
     };
 
     return (
+      // Menu item card component for displaying individual menu items which is Food or drink items 
       <View style={styles.menuItemCard}>
         <Image source={imageSource || require('../assets/Logo.jpg')} style={styles.itemImage} />
         <View style={styles.itemDetails}>
@@ -83,6 +88,7 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
     );
   };
 
+  // Header component displaying logo, title, navigation buttons, and stats
   const ListHeader = () => {
     const totalDrinkCount = drinksData['Cold drinks'].length + drinksData['Hot drinks'].length;
     const totalItemCount = menuItems.length + totalDrinkCount;
@@ -93,9 +99,11 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
           <Image source={require('../assets/Logo.jpg')} style={styles.logoPlaceholder} />
           <Text style={styles.headerTitle}>The Menu</Text>
           <View style={styles.headerNavContainer}>
+
             <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('FilterByCourse', { currentMenuItems: menuItems, currentDrinksData: drinksData })}>
               <Text style={styles.headerNavText}>Filter by course</Text>
             </TouchableOpacity>
+            
             <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.navigate('Checkout', { orderedItems })}>
               <Text style={styles.headerNavText}>Checkout ({orderedItems.length})</Text>
             </TouchableOpacity>
@@ -104,6 +112,7 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
                 <Text style={styles.headerNavText}>Remove Items</Text>
               </TouchableOpacity>
             )}
+
             <TouchableOpacity style={styles.headerNavButton} onPress={() => navigation.goBack()}>
               <Text style={styles.headerNavText}>Back</Text>
             </TouchableOpacity>
@@ -127,19 +136,23 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
     );
   };
 
+  // Function to handle adding drink items to the checkout
   const handleAddDrinkToCheckout = (drinkName: string) => {
     const newDrinkItem: MenuItem = {
-      id: `drink_${drinkName}_${Date.now()}`, // Unique ID for the ordered item
+      // Unique ID for the ordered item
+      id: `drink_${drinkName}_${Date.now()}`, 
       name: drinkName,
       description: 'A refreshing beverage',
       course: 'Drinks',
-      price: 25, // Assign a default price for drinks
+      // Assign a default price for drinks
+      price: 25, 
       image: null,
     };
     setOrderedItems(prevItems => [...prevItems, newDrinkItem]);
     Alert.alert("Item Added", `${drinkName} has been added to your order.`);
   };
 
+  // Render the drinks section separately
   const renderDrinksSection = () => (
     <View>
       <Text style={styles.courseHeader}>Drinks</Text>
@@ -173,15 +186,18 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
   );
 
   return (
+    // Main container with background image and safe area 
     <ImageBackground source={require('../assets/Background.jpg')} style={styles.container} resizeMode="cover">
       <SafeAreaView style={styles.overlay}>
         <SectionList
+        // SectionList to display menu items grouped by course
             sections={menuSections}
             keyExtractor={(item) => item.id}
             renderItem={renderMenuItemCard}
             renderSectionHeader={({ section: { title } }) => (
               <Text style={styles.courseHeader}>{title}</Text>
             )}
+            // Combine the ListHeader and Drinks section in the header
             ListHeaderComponent={<><ListHeader />{renderDrinksSection()}</>}
             contentContainerStyle={styles.scrollViewContent}
           />
@@ -190,14 +206,16 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
   );
 };
 
-// --- 4. STYLES ---
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   overlay: {
-    flex: 1, // This ensures the safe area fills the background
-    backgroundColor: 'rgba(255, 255, 255, 0.6)', // Semi-transparent white background
+    // This ensures the safe area fills the background
+    flex: 1, 
+    // Semi-transparent white background
+    backgroundColor: 'rgba(255, 255, 255, 0.6)', 
   },
   scrollViewContent: {
     paddingHorizontal: 15,

@@ -10,22 +10,28 @@ type Props = ScreenProps<'EditMenu'>;
 // We exclude 'Drinks' because they are handled separately and not added via this form.
 const courseOptions = ['Specials', 'Starter', 'Main Course', 'Dessert', 'Hot Drink', 'Cold Drink'];
 
+// The edit menu screen component 
 export default function EditMenuScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData }: Props) {
-  const { currentMenuItems } = route.params; // We still get the current items to know what to navigate with
+  // We still get the current items to know what to navigate with
+  const { currentMenuItems } = route.params; 
+  // State for the form inputs 
   const [dishName, setDishName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedCourse, setSelectedCourse] = useState('');
   const [price, setPrice] = useState("");
   const [image, setImage] = useState<string | null>(null);
 
+  // Determine if the selected course is a drink 
   const isDrink = selectedCourse === 'Hot Drink' || selectedCourse === 'Cold Drink';
 
+  // Function to handle saving the new menu item or drink
   const handleSave = () => {
     if (!dishName || !selectedCourse) {
       Alert.alert("Incomplete Form", "Please provide a name and select a course.");
       return;
     }
 
+    // Validate required fields for food items
     if (!isDrink && (!description || !price)) {
       Alert.alert("Incomplete Form", "Please fill out all fields before saving.");
       return;
@@ -42,17 +48,21 @@ export default function EditMenuScreen({ navigation, route, menuItems, setMenuIt
     } else {
       // Handle adding a food item
       const newItem: MenuItem = {
-        id: `menuItem_${Date.now()}`, // Generate a unique ID
+        // Generate a unique ID
+        id: `menuItem_${Date.now()}`, 
         name: dishName,
         description: description,
         course: selectedCourse as Exclude<Course, 'Drinks'>,
         price: parseFloat(price),
-        image: image, // Pass the image URI
+        // Pass the image URI if available 
+        image: image, 
       };
+      //
       setMenuItems(prevItems => [newItem, ...prevItems]);
       Alert.alert("Success", `${newItem.name} has been added to the menu.`);
     }
 
+    // Clear the form fields after saving 
     setDishName("");
     setDescription("");
     setSelectedCourse('');
@@ -68,6 +78,7 @@ export default function EditMenuScreen({ navigation, route, menuItems, setMenuIt
       return;
     }
 
+    // Launch image picker 
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -81,6 +92,7 @@ export default function EditMenuScreen({ navigation, route, menuItems, setMenuIt
   };
 
   return (
+    // Background image for the edit menu screen 
     <ImageBackground source={require("../assets/Background.jpg")} style={styles.container} resizeMode="cover">
       <KeyboardAvoidingView
         style={styles.container}
@@ -273,7 +285,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   logoutButton: {
-    backgroundColor: '#bd7d1cff', // A distinct color for logout
+    // A distinct color for logout
+    backgroundColor: '#bd7d1cff', 
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 20,

@@ -4,23 +4,29 @@ import { ScreenProps, MenuItem, Course } from '../App';
 
 type Props = ScreenProps<'FilterByCourse'>;
 
+// Define filter categories including 'All' and specific courses
 const filterCategories: ('All' | Course)[] = ['All', 'Specials', 'Starter', 'Main Course', 'Dessert', 'Drinks'];
 
+// The filter by course screen component 
 export default function FilterByCourseScreen({ navigation, route }: Props) {
   const { currentMenuItems, currentDrinksData } = route.params;
   const [activeFilter, setActiveFilter] = useState<'All' | Course>('All');
   const [orderedItems, setOrderedItems] = useState<MenuItem[]>([]);
 
+  // Memoized filtered items based on active filter 
   const filteredItems = useMemo(() => {
     if (activeFilter === 'All') {
       return currentMenuItems;
     }
+    // Filter items by selected course 
     return currentMenuItems.filter(item => item.course === activeFilter);
   }, [activeFilter, currentMenuItems]);
 
+  // Render each menu item card 
   const renderMenuItemCard = ({ item }: { item: MenuItem }) => {
     const imageSource = typeof item.image === 'string' ? { uri: item.image } : item.image;
 
+    // Function to handle adding item to checkout
     const handleAddToCheckout = () => {
       setOrderedItems(prevItems => [...prevItems, item]);
       Alert.alert("Item Added", `${item.name} has been added to your order.`);
@@ -40,26 +46,35 @@ export default function FilterByCourseScreen({ navigation, route }: Props) {
     );
   };
 
+  // Function to handle adding drink to checkout 
   const handleAddDrinkToCheckout = (drinkName: string) => {
+    // Create a MenuItem for the drink 
     const newDrinkItem: MenuItem = {
-      id: `drink_${drinkName}_${Date.now()}`, // Unique ID for the ordered item
+      // Unique ID for the ordered item
+      id: `drink_${drinkName}_${Date.now()}`, 
       name: drinkName,
       description: 'A refreshing beverage',
       course: 'Drinks',
-      price: 25, // Assign a default price for drinks
+      // Assign a default price for drinks
+      price: 25, 
       image: null,
     };
+
+    // Add the drink item to ordered items 
     setOrderedItems(prevItems => [...prevItems, newDrinkItem]);
     Alert.alert("Item Added", `${drinkName} has been added to your order.`);
   };
 
+  // Render the drinks section 
   const renderDrinksSection = () => (
+    // Drinks Section 
     <View style={styles.drinksSectionContainer}>
       <Text style={styles.courseHeader}>Drinks</Text>
       <View style={styles.drinksContainer}>
         <View style={styles.drinksColumn}>
           <Text style={styles.drinksSubHeader}>Cold drinks</Text>
           {currentDrinksData['Cold drinks'].map((drink, index) => (
+            // Drink item with add button 
             <View key={index} style={styles.drinkItem}>
               <Text style={styles.drinkText}>{drink}</Text>
               <TouchableOpacity style={styles.checkoutButton} onPress={() => handleAddDrinkToCheckout(drink)}>
@@ -84,6 +99,7 @@ export default function FilterByCourseScreen({ navigation, route }: Props) {
   );
 
   return (
+    // Filter By Course Screen image background
     <ImageBackground source={require('../assets/Background.jpg')} style={styles.container} resizeMode="cover">
       <SafeAreaView style={styles.overlay}>
         <View style={styles.header}>
@@ -94,8 +110,10 @@ export default function FilterByCourseScreen({ navigation, route }: Props) {
         <View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterContainer}>
             {filterCategories.map(category => (
+              // Filter button for each category 
               <TouchableOpacity
                 key={category}
+                // Apply active styles if this category is selected 
                 style={[styles.filterButton, activeFilter === category && styles.activeFilterButton]}
                 onPress={() => setActiveFilter(category)}
               >
@@ -110,6 +128,7 @@ export default function FilterByCourseScreen({ navigation, route }: Props) {
         {activeFilter === 'Drinks' ? (
           renderDrinksSection()
         ) : (
+          // It display filtered menu items
           <FlatList
             data={filteredItems}
             renderItem={renderMenuItemCard}

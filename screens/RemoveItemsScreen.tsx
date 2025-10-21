@@ -4,22 +4,30 @@ import { ScreenProps, MenuItem, Course } from '../App';
 
 type Props = ScreenProps<'RemoveItems'>;
 
+// Courses for menu categorization
 const predefinedCourses: Course[] = ['Specials', 'Starter', 'Main Course', 'Dessert', 'Drinks'];
 
+// The remove items screen component
 export default function RemoveItemsScreen({ navigation, route, menuItems, setMenuItems, drinksData, setDrinksData }: Props) {
   const [itemsToRemove, setItemsToRemove] = useState<Set<string>>(new Set());
 
+  // Function to toggle item selection for removal 
   const toggleItemForRemoval = useCallback((itemId: string) => {
     const newItemsToRemove = new Set(itemsToRemove);
+    // Toggle the presence of the item ID in the set
     if (newItemsToRemove.has(itemId)) {
       newItemsToRemove.delete(itemId);
     } else {
+      // Add item ID to the set for removal
       newItemsToRemove.add(itemId);
     }
+    // Update state with the new set 
     setItemsToRemove(newItemsToRemove);
   }, [itemsToRemove]);
 
+    // Function to handle saving the removals
   const handleSave = () => {
+    // Check if any items are selected for removal 
     if (itemsToRemove.size === 0) {
       Alert.alert("No Changes", "No items were selected for removal.");
       return;
@@ -38,23 +46,28 @@ export default function RemoveItemsScreen({ navigation, route, menuItems, setMen
     Alert.alert("Changes Saved", "The selected items have been removed from the menu.");
   };
 
+  // Function to handle cancelling the removals 
   const handleCancel = () => {
     navigation.goBack();
   };
 
+  // Function to calculate average price for a course 
   const getAveragePrice = useCallback((course: Course): number => {
     const courseItems = menuItems.filter(item => item.course === course);
+    // Avoid division by zero 
     if (courseItems.length === 0) return 0;
     const total = courseItems.reduce((sum, item) => sum + item.price, 0);
     return total / courseItems.length;
   }, [menuItems]);
 
+  // Prepare sections for SectionList 
   const menuSections = React.useMemo(() => {
     const groupedMenu = menuItems.reduce((acc, item) => {
       (acc[item.course] = acc[item.course] || []).push(item);
       return acc;
     }, {} as Record<Course, MenuItem[]>);
 
+    // Create sections only for courses that have items 
     return predefinedCourses
       .filter(course => course !== 'Drinks' && groupedMenu[course]?.length > 0)
       .map(course => ({
@@ -63,11 +76,13 @@ export default function RemoveItemsScreen({ navigation, route, menuItems, setMen
       }));
   }, [menuItems]);
 
+  // Render each menu item card
   const renderMenuItemCard = ({ item }: { item: MenuItem }) => {
     const isMarkedForRemoval = itemsToRemove.has(item.id);
     const imageSource = typeof item.image === 'string' ? { uri: item.image } : item.image;
 
     return (
+      // Menu item card with remove option 
       <View style={[styles.menuItemCard, isMarkedForRemoval && styles.itemMarkedForRemoval]}>
         <Image source={imageSource || require('../assets/Logo.jpg')} style={styles.itemImage} />
         <View style={styles.itemDetails}>
@@ -84,6 +99,7 @@ export default function RemoveItemsScreen({ navigation, route, menuItems, setMen
     );
   };
 
+  // Header component showing stats
   const ListHeader = () => {
     const totalDrinkCount = drinksData['Cold drinks'].length + drinksData['Hot drinks'].length;
     const totalItemCount = menuItems.length + totalDrinkCount;
@@ -115,6 +131,7 @@ export default function RemoveItemsScreen({ navigation, route, menuItems, setMen
     );
   };
 
+  // Render the drinks section 
   const renderDrinksSection = () => (
      <View>
        <Text style={styles.courseHeader}>Drinks</Text>
@@ -159,6 +176,7 @@ export default function RemoveItemsScreen({ navigation, route, menuItems, setMen
      </View>
   );
 
+  // Footer component with action buttons 
   const ListFooter = () => (
      <View>
        <View style={styles.footerButtons}>
@@ -176,6 +194,7 @@ export default function RemoveItemsScreen({ navigation, route, menuItems, setMen
   );
 
   return (
+    // Main container with background image 
      <ImageBackground source={require('../assets/Background.jpg')} style={styles.container} resizeMode="cover">
        <SafeAreaView style={styles.overlay}>
          <SectionList
@@ -284,7 +303,8 @@ const styles = StyleSheet.create({
      alignItems: 'center',
   },
   itemMarkedForRemoval: {
-     backgroundColor: '#ffdddd', // Highlight items marked for removal
+    // Highlight items marked for removal
+     backgroundColor: '#ffdddd', 
      borderColor: '#c00',
   },
   itemImage: { 
@@ -308,14 +328,15 @@ const styles = StyleSheet.create({
      marginBottom: 8 
     },
   removeButton: {
-     backgroundColor: '#181717ff', // Light blue
+     backgroundColor: '#181717ff',
      paddingHorizontal: 12,
      paddingVertical: 6,
      borderRadius: 5,
      alignSelf: 'flex-end',
   },
   removeButtonActive: {
-     backgroundColor: '#ff6347', // A red/tomato color for the "UNDO" state
+    // Change color when active
+     backgroundColor: '#ff6347', 
   },
   removeButtonText: { color: '#fff', 
     fontSize: 12, 
@@ -372,19 +393,20 @@ const styles = StyleSheet.create({
      width: '100%',
   },
   saveButton: {
-    backgroundColor: '#bbbebbff', // Green for save
+    backgroundColor: '#bbbebbff', 
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 20,
   },
   cancelButton: {
-    backgroundColor: '#a0a0a0', // Grey for cancel
+    backgroundColor: '#a0a0a0', 
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 20,
   },
   logoutButton: {
-    backgroundColor: '#a88525ff', // A distinct color for logout
+    // A distinct color for logout
+    backgroundColor: '#a88525ff', 
      paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 20,

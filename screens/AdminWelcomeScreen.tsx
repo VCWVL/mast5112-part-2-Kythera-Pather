@@ -9,9 +9,10 @@ type Props = { navigation: AdminNavProp };
 export default function WelcomeChefScreen({ navigation }: Props) {
   return (
     <ImageBackground
-      source={require("../assets/Background.jpg")} // Make sure you have a background.jpg in your assets folder
-      style={styles.container}
-      resizeMode="cover"
+    // Make sure you have a background.jpg in your assets folder
+      source={require("../assets/Background.jpg")} 
+      // Set the style to cover the entire screen
+      style={styles.container} resizeMode="cover"
     >
       <View style={styles.overlay}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -51,7 +52,8 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.3)", // Optional: adds a dark overlay for better text readability
+    // Optional: adds a dark overlay for better text readability
+    backgroundColor: "rgba(0,0,0,0.3)", 
     width: "100%",
   },
   scrollContent: {

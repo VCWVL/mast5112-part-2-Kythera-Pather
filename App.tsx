@@ -32,6 +32,7 @@ export type MenuItem = {
   image?: any; // Allow both string URI and require() result
 };
 
+// Define the root stack parameter list for navigation 
 export type RootStackParamList = {
   Login: undefined;
   WelcomeChef: undefined;
@@ -42,6 +43,7 @@ export type RootStackParamList = {
   Checkout: { orderedItems: MenuItem[] };
 };
 
+// Create the stack navigator 
 const Stack = createStackNavigator<RootStackParamList>();
 
 // Helper type for screen components
@@ -57,14 +59,61 @@ export type ScreenProps<T extends keyof RootStackParamList> = {
 export default function App() {
   // Initialize state for menu items and drinks data used across screens
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
-    { id: '1', name: 'Lobster Thermidor', description: 'Grilled lobster tail in a creamy mustard and brandy sauce.', course: 'Specials', price: 300, image: require("./assets/Lobster Thermidor.jpg") },
-    { id: '2', name: "Chef's Tasting Platter", description: "A curated selection of the chef's favorite seasonal bites (serves two).", course: 'Specials', price: 350, image: require("./assets/Chef's Tasting Platter.jpg") },
-    { id: '3', name: 'Seared Scallops with Herb Sauce', description: 'Pan-fried scallops served with herb and lemon dressing.', course: 'Starter', price: 95, image: require('./assets/Seared Scallops with Herb Sauce.jpg') },
-    { id: '4', name: 'Roasted Tomato Soup', description: 'Rich roasted tomato soup topped with basil oil and croutons.', course: 'Starter', price: 70, image: require('./assets/Roasted Tomato Soup.jpg') },
-    { id: '5', name: 'Fillet Steak', description: 'Tender beef fillet with creamy peppercorn sauce and potatoes.', course: 'Main Course', price: 220, image: require('./assets/fillet-steak.jpg') },
-    { id: '6', name: 'Pan-Fried Salmon', description: 'Salmon fillet served with creamy dill and mustard sauce.', course: 'Main Course', price: 155, image: require('./assets/Pan-Fried Salmon.jpg') },
-    { id: '7', name: 'Classic Crème Brûlée', description: 'Smooth vanilla custard topped with a caramelised sugar crust.', course: 'Dessert', price: 125, image: require('./assets/Classic Crème Brûlée.jpg') },
-    { id: '8', name: 'Chocolate Lava Pudding', description: 'Rich chocolate sponge with a gooey molten centre.', course: 'Dessert', price: 95, image: require('./assets/Chocolate Lava Pudding.jpg') },
+    { id: '1', name: 'Lobster Thermidor', 
+      description: 'Grilled lobster tail in a creamy mustard and brandy sauce.', 
+      course: 'Specials', 
+      price: 300, 
+      image: require("./assets/Lobster Thermidor.jpg") 
+    },
+    { id: '2', 
+      name: "Chef's Tasting Platter", 
+      description: "A curated selection of the chef's favorite seasonal bites (serves two).", 
+      course: 'Specials', 
+      price: 350, 
+      image: require("./assets/Chef's Tasting Platter.jpg") 
+    },
+    { id: '3', 
+      name: 'Seared Scallops with Herb Sauce', 
+      description: 'Pan-fried scallops served with herb and lemon dressing.', 
+      course: 'Starter', 
+      price: 95, 
+      image: require('./assets/Seared Scallops with Herb Sauce.jpg') 
+    },
+    { id: '4',
+       name: 'Roasted Tomato Soup', 
+       description: 'Rich roasted tomato soup topped with basil oil and croutons.', 
+       course: 'Starter', 
+       price: 70, 
+       image: require('./assets/Roasted Tomato Soup.jpg') 
+      },
+    { id: '5', 
+      name: 'Fillet Steak',
+      description: 'Tender beef fillet with creamy peppercorn sauce and potatoes.', 
+      course: 'Main Course', 
+      price: 220, 
+      image: require('./assets/fillet-steak.jpg') 
+    },
+    { id: '6', 
+      name: 'Pan-Fried Salmon', 
+      description: 'Salmon fillet served with creamy dill and mustard sauce.', 
+      course: 'Main Course', 
+      price: 155, 
+      image: require('./assets/Pan-Fried Salmon.jpg') 
+    },
+    { id: '7', 
+      name: 'Classic Crème Brûlée', 
+      description: 'Smooth vanilla custard topped with a caramelised sugar crust.', 
+      course: 'Dessert', 
+      price: 125, 
+      image: require('./assets/Classic Crème Brûlée.jpg') 
+    },
+    { id: '8', 
+      name: 'Chocolate Lava Pudding', 
+      description: 'Rich chocolate sponge with a gooey molten centre.', 
+      course: 'Dessert', 
+      price: 95, 
+      image: require('./assets/Chocolate Lava Pudding.jpg') 
+    },
   ]);
 
   const [drinksData, setDrinksData] = useState<DrinksData>({
