@@ -1,4 +1,7 @@
-Christoffel’s Menu – React Native Application
+# Christoffel’s Menu – React Native Application
+
+---
+
 # Overview
 
 Christoffel’s Menu is a full-featured mobile application built using React Native and TypeScript.
