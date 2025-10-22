@@ -165,3 +165,28 @@ Includes:
 
 ## Youtube link to the video of the app working.
 https://youtu.be/-S0EirDpphQ 
+
+ ---
+
+ # Referencing 
+- AllRecipes, 2025. Lobster Thermidor. [online] 30 January.  Available at: <https://www.allrecipes.com/recipe/87386/lobster-thermidor/ >[Accessed 17 October 2025]
+- Beeyot, n.d. Roasted Tomato Soup. [online] Available at: <https://beeyot.com/roasted-tomato-soup/ > [Accessed 17 October 2025]
+- Cooper Butchers, n.d. Fillet Steak. [online] Available at: <https://www.cooperbutchers.com/product/fillet-steak/> [Accessed 17 October 2025]
+- Craving Home Cooked, n.d. Lemon Dill Pan-Fried Salmon. [online] Available at: <https://cravinghomecooked.com/lemon-dill-pan-fried-salmon/ > [Accessed 17 October 2025]
+- Expo Documentation, 2024. ImagePicker API – Expo SDK. [online] 7 January. Available at: <https://docs.expo.dev/versions/latest/sdk/imagepicker/>  [Accessed 19 October 2025]
+- Pinterest, n.d. Pinterest Image – App Wireframe Inspiration. [online] Available at: <https://za.pinterest.com/pin/31806741113536806/> [Accessed 17 October 2025]
+- Pinterest, n.d. Pinterest Image – Dessert Course Layout. [online] Available at: <https://za.pinterest.com/pin/3166662232418452/> [Accessed 17 October 2025]
+- Pinterest, n.d. Pinterest Image – Seared Scallops with Herb Sauce. [online] Available at: <https://za.pinterest.com/pin/seared-scallops-with-herbinfused-sauce--962644489096624206/> [Accessed 17 October 2025]
+- Pinterest, n.d. Pinterest Image – Menu Design Reference. [online] Available at: <https://ca.pinterest.com/pin/772015561107563426/> [Accessed 17 October 2025]
+- Pinterest, n.d. Pinterest Image – UI Layout Example. [online] Available at: <https://za.pinterest.com/pin/138485757601566024/> [Accessed 17 October 2025]
+- React Native, n.d. Colors – React Native Documentation. [online] Available at: <https://reactnative.dev/docs/colors>  [Accessed 19 October 2025]
+- React Native, n.d. Flexbox – React Native Documentation. [online] Available at: <https://reactnative.dev/docs/flexbox>  [Accessed 19 October 2025]
+- React Native, n.d. Handling Touches – React Native Documentation. [online] Available at: <https://reactnative.dev/docs/handling-touches> [Accessed 19 October 2025]
+- React Native, n.d. Images – React Native Documentation. [online] Available at: <https://reactnative.dev/docs/images> [Accessed 17 October 2025]
+- React Native, n.d. Navigation – React Native Documentation. [online] Available at: <https://reactnative.dev/docs/navigation> [Accessed 17 October 2025]
+- React Native, n.d. Strict TypeScript API – React Native Documentation. [online] Available at: <https://reactnative.dev/docs/strict-typescript-api > [Accessed 20 October 2025]
+- React Native, n.d. Style – React Native Documentation. [online] Available at: <https://reactnative.dev/docs/style> [Accessed 17 October 2025]
+- React Native, n.d. TypeScript – React Native Documentation. [online] Available at: <https://reactnative.dev/docs/typescript> [Accessed 21 October 2025]
+- The Hungry Bites, 2023. Crème Brûlée. [online] 6 May. Available at: <https://www.thehungrybites.com/creme-brulee/> [Accessed 17 October 2025]
+- W3Schools, n.d. TypeScript Explicit Inference. [online] Available at: <https://www.w3schools.com/typescript/typescript_explicit_inference.php> [Accessed 21 October 2025]
+- W3Schools, n.d. TypeScript Special Types. [online] Available at: <https://www.w3schools.com/typescript/typescript_special_types.php> [Accessed 19 October 2025]
