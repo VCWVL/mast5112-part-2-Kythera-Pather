@@ -133,14 +133,14 @@ Includes:
 ---
 
 # Technology Stack
-Category -	Technology Used
-Framework -	React Native (with Expo SDK)
-Language -	TypeScript
-Navigation - 	React Navigation (@react-navigation/native, @react-navigation/stack)
-UI Components	- Core React Native components (View, Text, Image, SectionList, TouchableOpacity, etc.)
-Image Upload	- expo-image-picker
-Dropdowns & Pickers- 	@react-native-picker/picker
-Styling -	StyleSheet + Flexbox for responsive layouts
+- Category -	Technology Used
+- Framework -	React Native (with Expo SDK)
+- Language -	TypeScript
+- Navigation - 	React Navigation (@react-navigation/native, @react-navigation/stack)
+- UI Components	- Core React Native components (View, Text, Image, SectionList, TouchableOpacity, etc.)
+- Image Upload	- expo-image-picker
+- Dropdowns & Pickers- 	@react-native-picker/picker
+- Styling -	StyleSheet + Flexbox for responsive layouts
 
 ---
 
