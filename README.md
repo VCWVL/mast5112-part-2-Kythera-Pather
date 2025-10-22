@@ -146,8 +146,8 @@ Styling -	StyleSheet + Flexbox for responsive layouts
 
 # Default Login Credentials
 - Role	Username	Password
-Chef - username - chef,	(any password)
-Customer	- (any name other than “chef”), 	(any password)
+- Chef - username - chef,	(any password)
+- Customer	- (any name other than “chef”), 	(any password)
 
 ---
 
