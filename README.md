@@ -129,3 +129,34 @@ Includes:
 - Calculates total cost dynamically.
 
 - Provides buttons to return to the Menu or finalize the checkout.
+
+---
+
+# Technology Stack
+Category -	Technology Used
+Framework -	React Native (with Expo SDK)
+Language -	TypeScript
+Navigation - 	React Navigation (@react-navigation/native, @react-navigation/stack)
+UI Components	- Core React Native components (View, Text, Image, SectionList, TouchableOpacity, etc.)
+Image Upload	- expo-image-picker
+Dropdowns & Pickers- 	@react-native-picker/picker
+Styling -	StyleSheet + Flexbox for responsive layouts
+
+---
+
+# Default Login Credentials
+- Role	Username	Password
+Chef - username - chef,	(any password)
+Customer	- (any name other than “chef”), 	(any password)
+
+---
+
+# Future Enhancements
+
+- Integration with a backend API for persistent storage.
+
+- Customer feedback and rating system.
+
+- Secure payment processing at checkout.
+
+- Dark mode for improved accessibility and comfort.
