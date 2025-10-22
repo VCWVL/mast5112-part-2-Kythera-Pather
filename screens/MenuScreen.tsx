@@ -187,7 +187,7 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
 
   return (
     // Main container with background image and safe area 
-    <ImageBackground source={require('../assets/Background.jpg')} style={styles.container} resizeMode="cover">
+    <ImageBackground source={require('../assets/Background.jpg')} style={styles.ImageBackground} resizeMode="stretch">
       <SafeAreaView style={styles.overlay}>
         <SectionList
         // SectionList to display menu items grouped by course
@@ -210,6 +210,8 @@ export default function MenuScreen({ navigation, route, menuItems, setMenuItems,
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+   backgroundColor: '#000000ff',
+    
   },
   overlay: {
     // This ensures the safe area fills the background
@@ -220,6 +222,11 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     paddingHorizontal: 15,
     paddingBottom: 15,
+  },
+  ImageBackground: {
+    
+    height: '100%',
+    justifyContent: 'center',
   },
   header: { 
     flexDirection: 'row', 
